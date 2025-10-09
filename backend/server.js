@@ -11,7 +11,7 @@ app.use(express.json());
 app.use('/users', usersRouter);
 app.use('/products', productsRouter);
 app.use('/categories', categoriesRouter);
-app.use('/orders', ordersRouter);
+app.use('/orders', ordersRouter);   
 
 app.get('/', (req, res) => {
   res.send('Welcome to EcoShop API! Use /users, /products, /categories, /orders');
