@@ -3,11 +3,13 @@ import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, SlidersHorizontal } from "lucide-react";
+//import mouseIm from "@/assets/mouse.jpg";
 
 export default function Shop() {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Sample product data - in production, this would come from a database
+   
   const products = [
     {
       id: 1,
@@ -101,10 +103,47 @@ export default function Shop() {
       id: 12,
       name: "Natural Soap Set",
       price: 32,
-      image: "https://images.unsplash.com/photo-1600857062241-98e5dba60f2f?w=800&auto=format&fit=crop",
+      image: "/natural-soap.jpg",
       category: "Personal Care",
       rating: 4.8,
     },
+
+    {
+      id: 13,
+      name: "Wireless Mouse",
+      price: 249,
+      image: "/mouse.jpg",
+      category: "Electronics",
+      rating: 4.6,
+    },
+    
+    {
+      id: 14,
+      name: "Slipper",
+      price: 335,
+      image: "/slippers 2.jpeg",
+      category: "Footwear",
+      rating: 3.9,
+    },
+
+    {
+      id: 15,
+      name: "Perfume",
+      price: 790,
+      image: "/perfume.jpg",
+      category: "Floral",
+      rating: 4.2,
+    },
+{
+      id: 16,
+      name: "Shirt",
+      price: 450,
+      image: "/shirts.webp",
+      category: "Cloths",
+      rating: 4.8,
+    },
+
+
   ];
 
   const filteredProducts = products.filter(product =>

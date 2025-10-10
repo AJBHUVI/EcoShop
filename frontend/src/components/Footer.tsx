@@ -80,7 +80,7 @@ export const Footer = () => {
         </div>
 
         <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; 2025 EcoShop. All rights reserved. Built with care for people and planet.</p>
+          <p>&copy; 2025 EcoShop. All rights reserved. Built with care for people and planets.</p>
         </div>
       </div>
     </footer>

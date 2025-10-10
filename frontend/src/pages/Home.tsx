@@ -110,7 +110,7 @@ export default function Home() {
       {/* Trending Products */}
       <section className="container mx-auto px-4 py-20">
         <div className="flex items-center justify-between mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold">Trending for You</h2>
+          <h2 className="text-3xl md:text-4xl font-bold">Trending for Yours</h2>
           <Link to="/shop">
             <Button variant="ghost" className="group">
               View All
