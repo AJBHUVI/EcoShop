@@ -1,16 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, SlidersHorizontal } from "lucide-react";
-//import mouseIm from "@/assets/mouse.jpg";
+
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  category: string;
+  rating: number;
+}
 
 export default function Shop() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [dbProducts, setDbProducts] = useState([]);
 
-  // Sample product data - in production, this would come from a database
-   
-  const products = [
+useEffect(() => {
+  fetch("http://localhost:5002/api/products")
+    .then((res) => {
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+      return res.json(); // <-- parse JSON
+    })
+    .then((data) => {
+      console.log("DB Products fetched:", data);
+      setDbProducts(data); // <-- now it has actual data
+    })
+    .catch((err) => console.error("Error fetching products:", err));
+}, []);
+
+  // ✅ Your existing 12 static demo products
+  const staticProducts = [
     {
       id: 1,
       name: "Organic Cotton T-Shirt",
@@ -107,55 +128,54 @@ export default function Shop() {
       category: "Personal Care",
       rating: 4.8,
     },
-
-    {
-      id: 13,
-      name: "Wireless Mouse",
-      price: 249,
-      image: "/mouse.jpg",
-      category: "Electronics",
+    { 
+      id: 13, name: "Wireless Mouse",
+      price: 249, image: "/mouse.jpg", 
+      category: "Electronics", 
       rating: 4.6,
-    },
-    
-    {
-      id: 14,
+      }, 
+    { 
+      id: 14, 
       name: "Slipper",
-      price: 335,
-      image: "/slippers 2.jpeg",
+      price: 335, image: "/slippers 2.jpeg",
       category: "Footwear",
-      rating: 3.9,
-    },
-
-    {
-      id: 15,
-      name: "Perfume",
-      price: 790,
-      image: "/perfume.jpg",
+      rating: 3.9, 
+      }, 
+    
+    { 
+      id: 15, name: "Perfume", price: 790,
+      image: "/perfume.jpg", 
       category: "Floral",
       rating: 4.2,
     },
-{
-      id: 16,
+
+    { 
+      id: 16, 
       name: "Shirt",
       price: 450,
       image: "/shirts.webp",
-      category: "Cloths",
-      rating: 4.8,
+      category: "Cloths", 
+      rating: 4.8, 
     },
-
-
+  ];
+  // ✅ Merge static + DB products safely, avoiding duplicate IDs
+  const allProducts:Product[] = [
+    ...staticProducts,
+    ...dbProducts.filter(db => !staticProducts.some(sp => sp.id === db.id))
   ];
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchQuery.toLowerCase())
+  // ✅ Search filtering
+  const filteredProducts = allProducts.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">Shop All Nithish</h1>
+          <h1 className="text-4xl font-bold mb-4">Shop All Yours</h1>
           <p className="text-muted-foreground text-lg">
             Discover our curated collection of sustainable and eco-friendly products
           </p>
@@ -181,8 +201,8 @@ export default function Shop() {
         {/* Products Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredProducts.map((product, index) => (
-            <div 
-              key={product.id}
+            <div
+              key={`${product.id}-${index}`} // unique key to avoid React conflicts
               className="animate-fade-in"
               style={{ animationDelay: `${index * 0.05}s` }}
             >

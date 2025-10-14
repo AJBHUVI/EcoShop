@@ -1,5 +1,3 @@
-
-
 services:
   mysql_db:
     image: mysql:8.0.43
@@ -24,6 +22,9 @@ services:
       DB_NAME: ecoshop
     depends_on:
       - mysql_db
+    volumes:
+      - ./backend:/app       # Optional: live reload backend
+    command: npx nodemon server.js   # Auto-restart backend on code changes
 
   frontend:
     build: ./frontend
@@ -32,6 +33,11 @@ services:
       - "5173:5173"
     depends_on:
       - backend
+    volumes:
+      - ./frontend:/app        # Mount local frontend code
+      
+      - /app/node_modules      # Keep container node_modules
+    command: npm run dev        # Run Vite in dev mode with reload
 
 volumes:
   mysql_data:

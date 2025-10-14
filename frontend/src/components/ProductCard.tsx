@@ -48,7 +48,7 @@ export const ProductCard = ({ id, name, price, image, category, rating = 4.5 }: 
           </h3>
         </Link>
         <div className="flex items-center justify-between">
-          <span className="text-xl font-bold text-primary">${price.toFixed(2)}</span>
+          <span className="text-xl font-bold text-primary">${price}</span>
           <div className="flex items-center text-sm text-muted-foreground">
             <span className="text-secondary mr-1">★</span>
             {rating}
