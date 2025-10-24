@@ -18,7 +18,7 @@ export default function Shop() {
   const [dbProducts, setDbProducts] = useState([]);
 
 useEffect(() => {
-  fetch("http://localhost:5002/api/products")
+  fetch("http://localhost:5002/products")
     .then((res) => {
       if (!res.ok) throw new Error(`Server error: ${res.status}`);
       return res.json(); // <-- parse JSON
@@ -32,38 +32,39 @@ useEffect(() => {
 
   // ✅ Your existing 12 static demo products
   const staticProducts = [
-    {
-      id: 1,
-      name: "Organic Cotton T-Shirt",
-      price: 45,
-      image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&auto=format&fit=crop",
-      category: "Clothing",
-      rating: 4.8,
-    },
-    {
-      id: 2,
-      name: "Bamboo Sunglasses",
-      price: 89,
-      image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&auto=format&fit=crop",
-      category: "Accessories",
-      rating: 4.6,
-    },
-    {
-      id: 3,
-      name: "Recycled Yoga Mat",
-      price: 68,
-      image: "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=800&auto=format&fit=crop",
-      category: "Fitness",
-      rating: 4.9,
-    },
-    {
-      id: 4,
-      name: "Hemp Backpack",
-      price: 95,
-      image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&auto=format&fit=crop",
-      category: "Accessories",
-      rating: 4.7,
-    },
+    // {
+    //   id: 1,
+    //   name: "Organic Cotton T-Shirt",
+    //   price: 45,
+    //   image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&auto=format&fit=crop",
+    //   category: "Clothing",
+    //   rating: 4.8,
+    // },
+    // {
+    //   id: 2,
+    //   name: "Bamboo Sunglasses",
+    //   price: 89,
+    //   image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&auto=format&fit=crop",
+    //   category: "Accessories",
+    //   rating: 4.6,
+    // },
+    // {
+      
+    //   id: 3,
+    //   name: "Recycled Yoga Mat",
+    //   price: 68,
+    //   image: "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=800&auto=format&fit=crop",
+    //   category: "Fitness",
+    //   rating: 4.9,
+    // },
+    // {
+    //   id: 4,
+    //   name: "Hemp Backpack",
+    //   price: 95,
+    //   image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&auto=format&fit=crop",
+    //   category: "Accessories",
+    //   rating: 4.7,
+    // },
     {
       id: 5,
       name: "Sustainable Sneakers",
@@ -137,7 +138,7 @@ useEffect(() => {
     { 
       id: 14, 
       name: "Slipper",
-      price: 335, image: "/images/slippers 2.jpeg",
+      price: 335, image: "/images/crocs.jpeg",
       category: "Footwear",
       rating: 3.9, 
       }, 

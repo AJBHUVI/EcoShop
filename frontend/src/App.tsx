@@ -3,8 +3,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
+
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
@@ -14,6 +16,11 @@ import Wishlist from "./pages/Wishlist";
 import About from "./pages/About";
 import Sustainability from "./pages/Sustainability";
 import Contact from "./pages/Contact";
+
+// Admin pages
+import Login from "./pages/login";
+import Signup from "./pages/signup";
+import Dashboard from "./pages/dashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +35,7 @@ const App = () => (
           <Navbar />
           <main className="flex-1">
             <Routes>
+              {/* Public site routes */}
               <Route path="/" element={<Home />} />
               <Route path="/shop" element={<Shop />} />
               <Route path="/product/:id" element={<ProductDetail />} />
@@ -37,6 +45,13 @@ const App = () => (
               <Route path="/about" element={<About />} />
               <Route path="/sustainability" element={<Sustainability />} />
               <Route path="/contact" element={<Contact />} />
+
+              {/* Admin routes */}
+              <Route path="/admin/login" element={<Login />} />
+              <Route path="/admin/signup" element={<Signup />} />
+              <Route path="/admin/dashboard" element={<Dashboard />} />
+
+              {/* 404 Not Found */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
