@@ -1,75 +1,40 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5002/api/admin";
-
-interface DashboardStats {
-  users: number;
-  products: number;
-  orders: number;
-  categories: number;
-}
-
-const Dashboard = () => {
-  const navigate = useNavigate();
-  const [message, setMessage] = useState("");
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [error, setError] = useState("");
+const Dashboard: React.FC = () => {
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalProducts: 0,
+    totalOrders: 0,
+  });
 
   useEffect(() => {
-    const fetchDashboard = async () => {
-      const token = localStorage.getItem("adminToken");
-      if (!token) {
-        navigate("/admin/login");
-        return;
-      }
-
-      try {
-        const res = await axios.get(`${BASE_URL}/dashboard`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setMessage(res.data.message);
-        setStats(res.data.stats);
-      } catch (err: any) {
-        console.error("Dashboard fetch error:", err.response?.data || err);
-        setError(err.response?.data?.error || "Server error");
-        localStorage.removeItem("adminToken");
-        localStorage.removeItem("adminUsername");
-        navigate("/admin/login");
-      }
-    };
-
-    fetchDashboard();
-  }, [navigate]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("adminToken");
-    localStorage.removeItem("adminUsername");
-    navigate("/admin/login");
-  };
+    axios
+      .get("http://localhost:5002/api/users/dashboard")
+      .then((res) => setStats(res.data))
+      .catch((err) => console.error("Error loading dashboard:", err));
+  }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-4">
-      <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-      {message && <p className="text-green-600">{message}</p>}
-      {error && <p className="text-red-600">{error}</p>}
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center py-10">
+      <h1 className="text-3xl font-bold text-green-700 mb-10">Admin Dashboard</h1>
 
-      {stats && (
-        <div className="mt-4 grid grid-cols-2 gap-4 text-center">
-          <div className="p-4 bg-gray-100 rounded">Users: {stats.users}</div>
-          <div className="p-4 bg-gray-100 rounded">Products: {stats.products}</div>
-          <div className="p-4 bg-gray-100 rounded">Orders: {stats.orders}</div>
-          <div className="p-4 bg-gray-100 rounded">Categories: {stats.categories}</div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-11/12 md:w-3/4">
+        <div className="bg-white shadow-lg rounded-2xl p-6 text-center border-t-4 border-green-600">
+          <h2 className="text-xl font-semibold mb-2 text-gray-700">Total Users</h2>
+          <p className="text-3xl font-bold text-green-600">{stats.totalUsers}</p>
         </div>
-      )}
 
-      <button
-        onClick={handleLogout}
-        className="mt-6 p-2 bg-red-500 text-white rounded hover:bg-red-600"
-      >
-        Logout
-      </button>
+        <div className="bg-white shadow-lg rounded-2xl p-6 text-center border-t-4 border-blue-600">
+          <h2 className="text-xl font-semibold mb-2 text-gray-700">Total Products</h2>
+          <p className="text-3xl font-bold text-blue-600">{stats.totalProducts}</p>
+        </div>
+
+        <div className="bg-white shadow-lg rounded-2xl p-6 text-center border-t-4 border-yellow-600">
+          <h2 className="text-xl font-semibold mb-2 text-gray-700">Total Orders</h2>
+          <p className="text-3xl font-bold text-yellow-600">{stats.totalOrders}</p>
+        </div>
+      </div>
     </div>
   );
 };

@@ -36,7 +36,8 @@ const App = () => (
           <main className="flex-1">
             <Routes>
               {/* Public site routes */}
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<Signup />} />
+              <Route path="/home" element={<Home />} />
               <Route path="/shop" element={<Shop />} />
               <Route path="/product/:id" element={<ProductDetail />} />
               <Route path="/cart" element={<Cart />} />
@@ -49,7 +50,7 @@ const App = () => (
               {/* Admin routes */}
               <Route path="/admin/login" element={<Login />} />
               <Route path="/admin/signup" element={<Signup />} />
-              <Route path="/admin/dashboard" element={<Dashboard />} />
+              <Route path="/dashboard" element={<Dashboard />} />
 
               {/* 404 Not Found */}
               <Route path="*" element={<NotFound />} />

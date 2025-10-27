@@ -1,47 +1,100 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const BASE_URL = "http://localhost:5002/api/admin";
-
-const Signup = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+const Signup: React.FC = () => {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const handleSignup = async () => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+
     try {
-      const res = await axios.post(`${BASE_URL}/signup`, { username, password });
-      alert(res.data.message);
-      navigate("/admin/login");
+      const res = await axios.post("http://localhost:5002/api/users/signup", formData);
+      setSuccess("Signup successful! Redirecting to login...");
+      setTimeout(() => navigate("/admin/login"), 1500);
     } catch (err: any) {
-      console.error(err.response?.data);
-      setError(err.response?.data?.error || "Signup failed");
+      setError(err.response?.data?.error || "Signup failed. Try again.");
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-      <h1 className="text-3xl">Admin Signup</h1>
-      {error && <p className="text-red-600">{error}</p>}
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        className="border p-2 rounded"
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="border p-2 rounded"
-      />
-      <button onClick={handleSignup} className="bg-green-500 text-white p-2 rounded">
-        Signup
-      </button>
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-blue-100 to-indigo-200">
+      <div className="bg-white shadow-2xl rounded-2xl p-10 w-full max-w-md">
+        <h2 className="text-3xl font-bold text-center mb-6 text-indigo-700">Create Account</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <input
+              type="text"
+              name="name"
+              placeholder="Enter your name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input
+              type="email"
+              name="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <input
+              type="password"
+              name="password"
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-lg transition duration-300"
+          >
+            Sign Up
+          </button>
+
+          {error && <p className="text-red-600 text-center mt-3">{error}</p>}
+          {success && <p className="text-green-600 text-center mt-3">{success}</p>}
+        </form>
+
+        <p className="text-sm text-center mt-5 text-gray-600">
+          Already have an account?{" "}
+          <span
+            className="text-indigo-600 font-semibold cursor-pointer"
+            onClick={() => navigate("/admin/login")}
+          >
+            Login
+          </span>
+        </p>
+      </div>
     </div>
   );
 };

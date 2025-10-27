@@ -1,84 +1,96 @@
 import express from "express";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import db from "../config/db.js"; // your MySQL connection
+import db from "../config/db.js";
 
 const router = express.Router();
+const JWT_SECRET = "secretkey"; // for demo only
 
-// ====================
-// Admin Signup
-// ====================
+// ✅ SIGNUP — Adds new user to `users` table
 router.post("/signup", async (req, res) => {
   try {
-    const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ error: "All fields required" });
+    const { name, email, password } = req.body;
 
-    const [existingAdmin] = await db.query("SELECT * FROM admins WHERE username = ?", [username]);
-    if (existingAdmin.length > 0) return res.status(400).json({ error: "Admin already exists" });
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const [existing] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
+    if (existing.length > 0) {
+      return res.status(400).json({ error: "Email already registered" });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    await db.query("INSERT INTO admins (username, password) VALUES (?, ?)", [username, hashedPassword]);
-
-    res.status(201).json({ message: "Admin signed up successfully!" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-// ====================
-// Admin Login
-// ====================
-router.post("/login", async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ error: "All fields required" });
-
-    const [admins] = await db.query("SELECT * FROM admins WHERE username = ?", [username]);
-    if (admins.length === 0) return res.status(400).json({ error: "Invalid credentials" });
-
-    const admin = admins[0];
-    const isMatch = await bcrypt.compare(password, admin.password);
-    if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
-
-    // Generate JWT token
-    const token = jwt.sign(
-      { id: admin.id, username: admin.username },
-      process.env.JWT_SECRET,
-      { expiresIn: "10h" } // longer for testing
+    await db.query(
+      "INSERT INTO users (name, email, password, users_view) VALUES (?, ?, ?, 1)",
+      [name, email, hashedPassword]
     );
 
-    res.json({ message: "Admin logged in successfully!", token });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
+    res.status(201).json({ message: "Signup successful" });
+  } catch (error) {
+    console.error("Signup error:", error);
+res.status(500).json({ error: 'Signup failed', details: err.message });  }
+});
+
+// ✅ LOGIN — works for both admin & user
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password)
+      return res.status(400).json({ error: "Email and password required" });
+
+    const [rows] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
+    if (rows.length === 0)
+      return res.status(401).json({ error: "Invalid email" });
+
+    const user = rows[0];
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch)
+      return res.status(401).json({ error: "Invalid password" });
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email, users_view: user.users_view },
+      JWT_SECRET,
+      { expiresIn: "10h" }
+    );
+
+    res.json({
+      message: "Login successful",
+      token,
+      user: { id: user.id, name: user.name, email: user.email, users_view: user.users_view },
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// ====================
-// Dashboard (Protected)
-// ====================
-const verifyToken = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  if (!authHeader) return res.status(401).json({ error: "No token provided" });
-
-  const token = authHeader.split(" ")[1];
+// ✅ DASHBOARD (for admins only)
+router.get("/dashboard", async (req, res) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.admin = decoded;
-    next();
-  } catch (err) {
-    console.error(err);
-    res.status(403).json({ error: "Invalid token" });
-  }
-};
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: "No token provided" });
 
-router.get("/dashboard", verifyToken, async (req, res) => {
-  // You can fetch real data here from DB if needed
-  res.json({
-    message: `Welcome Admin ${req.admin.username}`,
-    stats: { users: 120, products: 50, orders: 75, categories: 10 },
-  });
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    if (decoded.users_view !== 0) {
+      return res.status(403).json({ error: "Access denied: Admins only" });
+    }
+
+    const [[{ totalUsers }]] = await db.query("SELECT COUNT(*) AS totalUsers FROM users");
+    const [[{ totalOrders }]] = await db.query("SELECT COUNT(*) AS totalOrders FROM orders");
+    const [[{ totalSales }]] = await db.query("SELECT SUM(total_amount) AS totalSales FROM orders");
+
+    res.json({
+      totalUsers,
+      totalOrders,
+      totalSales: totalSales || 0,
+    });
+  } catch (error) {
+    console.error("Dashboard error:", error);
+    res.status(500).json({ error: "Error fetching dashboard", details: error.message });
+  }
 });
 
 export default router;

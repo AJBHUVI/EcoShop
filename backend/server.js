@@ -7,7 +7,7 @@ import usersRouter from './routes/users.js';
 import productsRouter from './routes/products.js';
 import categoriesRouter from './routes/categories.js';
 import ordersRouter from './routes/orders.js';
-import adminRouter from './routes/admin.js';   // ✅ add this
+//import adminRouter from './routes/admin.js';   // ✅ add this
 import './config/db.js';  // ✅ ensures MySQL connects
 
 const app = express();
@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(cors({ origin: 'http://localhost:5173' }));
 
 // Routes
-app.use('/users', usersRouter);
+app.use('/api/users', usersRouter);
 app.use('/products', productsRouter);
 app.use('/categories', categoriesRouter);
 app.use('/orders', ordersRouter);
