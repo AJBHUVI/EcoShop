@@ -9,17 +9,16 @@ const Dashboard: React.FC = () => {
     totalFeedbacks: 0,
   });
 
-  const [feedbacks, setFeedbacks] = useState<any[]>([]);
-  const [showFeedbacks, setShowFeedbacks] = useState(false);
+  const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [dataList, setDataList] = useState<any[]>([]);
 
-  // Load dashboard stats
+  // ✅ Load dashboard stats
   useEffect(() => {
     axios
       .get("/dashboard")
       .then((res) => setStats((prev) => ({ ...prev, ...res.data })))
       .catch((err) => console.error("Error loading dashboard:", err));
 
-    // Fetch feedback count
     axios
       .get("/contact/messages")
       .then((res) =>
@@ -28,101 +27,162 @@ const Dashboard: React.FC = () => {
       .catch((err) => console.error("Error fetching feedback count:", err));
   }, []);
 
-  // Fetch detailed feedbacks when clicking card
-  const fetchFeedbackDetails = async () => {
+  // ✅ Dynamic data fetcher for sections
+  const fetchDetails = async (type: string) => {
     try {
-      const res = await axios.get("/contact/messages");
-      setFeedbacks(res.data);
-      setShowFeedbacks(true);
+      let endpoint = "";
+      if (type === "users") endpoint = "/users";
+      else if (type === "products") endpoint = "/products";
+      else if (type === "orders") endpoint = "/orders";
+      else if (type === "feedbacks") endpoint = "/contact/messages";
+
+      const res = await axios.get(endpoint);
+      setDataList(res.data);
+      setActiveSection(type);
     } catch (err) {
-      console.error("Error fetching feedbacks:", err);
+      console.error(`Error fetching ${type}:`, err);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center py-10">
-      <h1 className="text-3xl font-bold text-green-700 mb-10">
-        Admin Dashboard
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 flex flex-col items-center py-10">
+      <h1 className="text-4xl font-extrabold text-green-700 mb-10 tracking-tight">
+        🌿 Admin Dashboard
       </h1>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 w-11/12 md:w-3/4">
-        <div className="bg-white shadow-lg rounded-2xl p-6 text-center border-t-4 border-green-600">
-          <h2 className="text-xl font-semibold mb-2 text-gray-700">
-            Total Users
-          </h2>
-          <p className="text-3xl font-bold text-green-600">
-            {stats.totalUsers}
-          </p>
+      {/* ✅ Show Cards (default view) */}
+      {!activeSection && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 w-11/12 md:w-4/5">
+          {[
+            {
+              title: "Total Users",
+              count: stats.totalUsers,
+              color: "from-green-500 to-emerald-600",
+              icon: "👥",
+              type: "users",
+            },
+            {
+              title: "Total Products",
+              count: stats.totalProducts,
+              color: "from-blue-500 to-sky-600",
+              icon: "🛍️",
+              type: "products",
+            },
+            {
+              title: "Total Orders",
+              count: stats.totalOrders,
+              color: "from-yellow-500 to-amber-600",
+              icon: "📦",
+              type: "orders",
+            },
+            {
+              title: "Feedback",
+              count: stats.totalFeedbacks,
+              color: "from-purple-500 to-indigo-600",
+              icon: "💬",
+              type: "feedbacks",
+            },
+          ].map((item, index) => (
+            <div
+              key={index}
+              onClick={() => fetchDetails(item.type)}
+              className={`cursor-pointer bg-white shadow-xl hover:shadow-2xl rounded-2xl p-6 text-center border-t-4 border-transparent transition transform hover:-translate-y-1 hover:scale-105 bg-gradient-to-b ${item.color} text-white`}
+            >
+              <div className="text-5xl mb-3">{item.icon}</div>
+              <h2 className="text-xl font-semibold mb-1 drop-shadow-sm">
+                {item.title}
+              </h2>
+              <p className="text-4xl font-bold">{item.count}</p>
+            </div>
+          ))}
         </div>
+      )}
 
-        <div className="bg-white shadow-lg rounded-2xl p-6 text-center border-t-4 border-blue-600">
-          <h2 className="text-xl font-semibold mb-2 text-gray-700">
-            Total Products
-          </h2>
-          <p className="text-3xl font-bold text-blue-600">
-            {stats.totalProducts}
-          </p>
-        </div>
-
-        <div className="bg-white shadow-lg rounded-2xl p-6 text-center border-t-4 border-yellow-600">
-          <h2 className="text-xl font-semibold mb-2 text-gray-700">
-            Total Orders
-          </h2>
-          <p className="text-3xl font-bold text-yellow-600">
-            {stats.totalOrders}
-          </p>
-        </div>
-
-        {/* ✅ New Feedback Card */}
-        <div
-          className="bg-white shadow-lg rounded-2xl p-6 text-center border-t-4 border-purple-600 cursor-pointer hover:bg-purple-50 transition"
-          onClick={fetchFeedbackDetails}
-        >
-          <h2 className="text-xl font-semibold mb-2 text-gray-700">
-            Total Feedback
-          </h2>
-          <p className="text-3xl font-bold text-purple-600">
-            {stats.totalFeedbacks}
-          </p>
-        </div>
-      </div>
-
-      {/* Feedback Section */}
-      {showFeedbacks && (
-        <div className="bg-white mt-10 p-6 rounded-2xl shadow-lg w-11/12 md:w-3/4">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-gray-800">
-              User Feedback Details
+      {/* ✅ Detail Section */}
+      {activeSection && (
+        <div className="bg-white mt-12 p-8 rounded-3xl shadow-2xl w-11/12 md:w-4/5 transition-all duration-300">
+          <div className="flex justify-between items-center mb-6 border-b pb-3">
+            <h2 className="text-2xl font-extrabold text-gray-800 capitalize">
+              📋 {activeSection} Details
             </h2>
             <button
-              className="text-red-500 font-semibold hover:text-red-700"
-              onClick={() => setShowFeedbacks(false)}
+              className="bg-red-100 text-red-600 hover:bg-red-200 px-4 py-2 rounded-lg font-semibold transition"
+              onClick={() => setActiveSection(null)}
             >
               ✖ Close
             </button>
           </div>
 
-          {feedbacks.length === 0 ? (
-            <p className="text-gray-500">No feedback received yet.</p>
+          {dataList.length === 0 ? (
+            <p className="text-gray-500 text-center py-6">
+              No {activeSection} found.
+            </p>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {feedbacks.map((fb) => (
-                <div
-                  key={fb.id}
-                  className="border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition"
-                >
-                  <h3 className="font-semibold text-lg">
-                    {fb.firstName} {fb.lastName}
-                  </h3>
-                  <p className="text-sm text-gray-500">{fb.email}</p>
-                  <p className="mt-2 font-medium text-gray-700">
-                    Subject: {fb.subject}
-                  </p>
-                  <p className="text-gray-600 mt-1">{fb.message}</p>
-                  <p className="text-xs text-gray-400 mt-2">{fb.date}</p>
-                </div>
-              ))}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {activeSection === "feedbacks" ? (
+                dataList.map((fb) => (
+                  <div
+                    key={fb.id}
+                    className="border border-gray-200 rounded-2xl p-5 bg-gradient-to-b from-gray-50 to-white shadow-md hover:shadow-lg hover:border-green-400 transition"
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="bg-green-100 text-green-700 font-bold rounded-full w-10 h-10 flex items-center justify-center">
+                        {fb.firstName?.[0] || "?"}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg">
+                          {fb.firstName} {fb.lastName}
+                        </h3>
+                        <p className="text-sm text-gray-500">{fb.email}</p>
+                      </div>
+                    </div>
+                    <p className="mt-2 text-gray-700 font-medium">
+                      Subject: {fb.subject}
+                    </p>
+                    <p className="text-gray-600 mt-1 italic border-l-4 border-green-300 pl-3">
+                      {fb.message}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-3">{fb.date}</p>
+                  </div>
+                ))
+              ) : (
+                dataList.map((item) => (
+                  <div
+                    key={item.id}
+                    className="border border-gray-200 rounded-2xl p-5 bg-gradient-to-b from-gray-50 to-white shadow-md hover:shadow-lg hover:border-green-400 transition"
+                  >
+                    {activeSection === "users" && (
+                      <>
+                        <h3 className="font-semibold text-lg">{item.name}</h3>
+                        <p className="text-gray-500">{item.email}</p>
+                      </>
+                    )}
+                    {activeSection === "products" && (
+                      <>
+                        <h3 className="font-semibold text-lg">{item.name}</h3>
+                        <p className="text-gray-500">₹{item.price}</p>
+                        <p className="text-sm text-gray-600">
+                          {item.category}
+                        </p>
+                      </>
+                    )}
+                    {activeSection === "orders" && (
+                      <>
+                        <h3 className="font-semibold text-lg">
+                          Order #{item.id}
+                        </h3>
+                        <p className="text-gray-600">User: {item.user_name}</p>
+                        <p className="text-gray-500">
+                          Total: ₹{item.total_amount}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-2">
+                          {item.date}
+                        </p>
+                      </>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
           )}
         </div>
