@@ -22,9 +22,9 @@ const Signup: React.FC = () => {
     setSuccess("");
 
     try {
-      const res = await axios.post("http://localhost:5002/users/signup", formData);
+      const res = await axios.post("/signup", formData);
       setSuccess("Signup successful! Redirecting to login...");
-      setTimeout(() => navigate("/admin/login"), 1500);
+      setTimeout(() => navigate("/login"), 1500);
     } catch (err: any) {
       setError(err.response?.data?.error || "Signup failed. Try again.");
     }
@@ -43,6 +43,7 @@ const Signup: React.FC = () => {
               placeholder="Enter your name"
               value={formData.name}
               onChange={handleChange}
+              autoComplete="off"
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
             />
@@ -56,6 +57,7 @@ const Signup: React.FC = () => {
               placeholder="Enter your email"
               value={formData.email}
               onChange={handleChange}
+              autoComplete="new-email"
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
             />
@@ -69,6 +71,7 @@ const Signup: React.FC = () => {
               placeholder="Enter your password"
               value={formData.password}
               onChange={handleChange}
+              autoComplete="new-password"
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
             />
@@ -89,7 +92,7 @@ const Signup: React.FC = () => {
           Already have an account?{" "}
           <span
             className="text-indigo-600 font-semibold cursor-pointer"
-            onClick={() => navigate("/admin/login")}
+            onClick={() => navigate("/login")}
           >
             Login
           </span>

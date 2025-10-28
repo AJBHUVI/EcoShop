@@ -23,6 +23,7 @@ import Login from "./pages/login";
 import Signup from "./pages/signup";
 import Dashboard from "./pages/dashboard";
 import NotFound from "./pages/NotFound";
+import UserDashboard from "./pages/user-dashboard";
 
 const queryClient = new QueryClient();
 
@@ -47,11 +48,12 @@ const App = () => (
               <Route path="/about" element={<About />} />
               <Route path="/sustainability" element={<Sustainability />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/user-dashboard" element={<UserDashboard />} />
 
               {/* Admin routes */}
-              <Route path="/admin/login" element={<Login />} />
-              <Route path="/admin/signup" element={<Signup />} />
-              <Route path="/dashboard/messages" element={<Messages />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} /> 
+              <Route path="/messages" element={<Messages />} />
               <Route path="/dashboard" element={<Dashboard />} />
 
               {/* 404 Not Found */}

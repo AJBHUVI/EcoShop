@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; 
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +8,8 @@ import { Card } from "@/components/ui/card";
 import { Mail, Phone, MapPin } from "lucide-react";
 
 export default function Contact() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -26,7 +29,7 @@ export default function Contact() {
     setStatus("Sending...");
 
     try {
-      await axios.post("http://localhost:5002/api/contact", formData);
+      await axios.post("/contact", formData);
       setStatus("✅ Message sent successfully!");
       setFormData({
         firstName: "",
@@ -34,6 +37,9 @@ export default function Contact() {
         email: "",
         subject: "",
         message: "",
+      });
+       navigate("/user-dashboard", {
+        state: { message: "Your feedback was submitted successfully!" },
       });
     } catch (error) {
       console.error(error);

@@ -14,7 +14,7 @@ const Login: React.FC = () => {
     setError("");
 
     try {
-      const response = await axios.post("http://localhost:5002/users/login", {
+      const response = await axios.post("/login", {
         email,
         password,
       });
@@ -75,6 +75,7 @@ const Login: React.FC = () => {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="new-email"
               className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:border-green-500"
               required
             />
@@ -87,6 +88,7 @@ const Login: React.FC = () => {
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
               className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:border-green-500"
               required
             />

@@ -18,7 +18,7 @@ export default function Shop() {
   const [dbProducts, setDbProducts] = useState([]);
 
 useEffect(() => {
-  fetch("http://localhost:5002/products")
+  fetch("/products")
     .then((res) => {
       if (!res.ok) throw new Error(`Server error: ${res.status}`);
       return res.json(); // <-- parse JSON

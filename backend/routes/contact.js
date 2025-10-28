@@ -5,7 +5,7 @@ const router = express.Router();
 // Temporary in-memory storage
 let messages = [];
 
-// POST /api/contact - receive message
+// POST /contact - receive message
 router.post("/", (req, res) => {
   const { firstName, lastName, email, subject, message } = req.body;
 
@@ -28,7 +28,7 @@ router.post("/", (req, res) => {
   res.status(200).json({ success: true, message: "Message sent successfully" });
 });
 
-// GET /api/contact/messages - admin view
+// GET /contact/messages - admin view
 router.get("/messages", (req, res) => {
   res.json(messages);
 });

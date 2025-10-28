@@ -4,6 +4,12 @@ import db from "../config/db.js";
 
 const router = express.Router();
 
+// Get all users
+router.get("/users", async (req, res) => {
+  const [rows] = await db.query("SELECT * FROM users");
+  res.json(rows);
+});
+
 
 // ✅ SIGNUP
 router.post("/signup", async (req, res) => {

@@ -13,7 +13,7 @@ function messages() {
   const [messages, setMessages] = useState<message[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:5002/api/contact/messages")
+    fetch("/contact/messages")
       .then((res) => res.json())
       .then((data) => setMessages(data))
       .catch((err) => console.error("Error fetching messages:", err));
