@@ -8,13 +8,16 @@ const router = express.Router();
 // ✅ SIGNUP
 router.post("/signup", async (req, res) => {
   try {
-    const { name, email, password, users_view } = req.body;
+    const { name, email, password, is_admin } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const sql =
-      "INSERT INTO users (name, email, password, users_view) VALUES (?, ?, ?, ?)";
-    await db.query(sql, [name, email, hashedPassword, users_view || 1]);
+    const sql = "INSERT INTO users (name, email, password, is_admin) VALUES (?, ?, ?, ?)";
+    await db.query(sql, [name, email, hashedPassword, is_admin ?? 0]);
 
     res.status(201).json({ message: "User registered successfully" });
   } catch (err) {
@@ -44,8 +47,8 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid password" });
     }
 
-    // ✅ Determine role based on users_view
-    const role = user.users_view === 0 ? "admin" : "user";
+    // ✅ Determine role based on is_admin
+    const role = user.is_admin === 0 ? "admin" : "user";
 
     // ✅ Return user info and role
    res.json({

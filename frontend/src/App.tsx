@@ -16,6 +16,7 @@ import Wishlist from "./pages/Wishlist";
 import About from "./pages/About";
 import Sustainability from "./pages/Sustainability";
 import Contact from "./pages/Contact";
+import Messages from "./pages/messages";
 
 // Admin pages
 import Login from "./pages/login";
@@ -50,6 +51,7 @@ const App = () => (
               {/* Admin routes */}
               <Route path="/admin/login" element={<Login />} />
               <Route path="/admin/signup" element={<Signup />} />
+              <Route path="/dashboard/messages" element={<Messages />} />
               <Route path="/dashboard" element={<Dashboard />} />
 
               {/* 404 Not Found */}

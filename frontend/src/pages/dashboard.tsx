@@ -10,7 +10,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5002/api/users/dashboard")
+      .get("http://localhost:5002/users/dashboard")
       .then((res) => setStats(res.data))
       .catch((err) => console.error("Error loading dashboard:", err));
   }, []);

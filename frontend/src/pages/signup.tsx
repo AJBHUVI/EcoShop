@@ -22,7 +22,7 @@ const Signup: React.FC = () => {
     setSuccess("");
 
     try {
-      const res = await axios.post("http://localhost:5002/api/users/signup", formData);
+      const res = await axios.post("http://localhost:5002/users/signup", formData);
       setSuccess("Signup successful! Redirecting to login...");
       setTimeout(() => navigate("/admin/login"), 1500);
     } catch (err: any) {

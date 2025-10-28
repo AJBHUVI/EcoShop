@@ -7,17 +7,21 @@ import usersRouter from './routes/users.js';
 import productsRouter from './routes/products.js';
 import categoriesRouter from './routes/categories.js';
 import ordersRouter from './routes/orders.js';
+import contactRouter from './routes/contact.js';
 //import adminRouter from './routes/admin.js';   // ✅ add this
 import './config/db.js';  // ✅ ensures MySQL connects
 
 const app = express();
+app.use(cors())
 app.use(express.json());
+
+app.use("/api/contact",contactRouter);
 
 // Allow frontend access
 app.use(cors({ origin: 'http://localhost:5173' }));
 
 // Routes
-app.use('/api/users', usersRouter);
+app.use('/users', usersRouter);
 app.use('/products', productsRouter);
 app.use('/categories', categoriesRouter);
 app.use('/orders', ordersRouter);

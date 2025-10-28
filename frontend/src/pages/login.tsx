@@ -1,50 +1,72 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate, Link } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     try {
-      const response = await axios.post('http://localhost:5002/api/users/login', {
+      const response = await axios.post("http://localhost:5002/users/login", {
         email,
         password,
       });
 
-      // ✅ Backend sends { success: true, user, role: 'admin' or 'user' }
+      // ✅ Backend sends { success: true, role: "admin" | "user", user: {...} }
       if (response.data.success) {
-        // Save user info to localStorage
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-        localStorage.setItem('role', response.data.role);
+        // Save user info
+        localStorage.setItem("user", JSON.stringify(response.data.user));
 
-        alert('Login successful!');
+        // ✅ Beautiful toast instead of alert
+        toast.success(`Welcome ${response.data.role.toUpperCase()}! 🎉`, {
+          duration: 2000,
+          style: {
+            background: "#4CAF50",
+            color: "#fff",
+            fontWeight: "bold",
+          },
+        });
 
-        // ✅ Check role and navigate accordingly
-        if (response.data.role === 'admin') {
-          navigate('/dashboard'); // Admin → Dashboard
-        } else {
-          navigate('/home'); // User → Home page
-        }
+        // ✅ Redirect after 2 seconds
+        setTimeout(() => {
+          if (response.data.role === "admin") {
+            navigate("/dashboard");
+          } else {
+            navigate("/home");
+          }
+        }, 2000);
       } else {
-        setError('Invalid email or password');
+        toast.error("Invalid email or password!", {
+          duration: 2500,
+          style: { background: "#e74c3c", color: "#fff" },
+        });
       }
     } catch (err) {
-      console.error('Login error:', err);
-      setError('Invalid email or password');
+      console.error("Login error:", err);
+      toast.error("Something went wrong during login!", {
+        duration: 2500,
+        style: { background: "#e67e22", color: "#fff" },
+      });
     }
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50">
+      {/* ✅ Include Toaster once here */}
+      <Toaster position="top-right" reverseOrder={false} />
+
       <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-semibold text-center text-green-700 mb-6">Login</h2>
+        <h2 className="text-2xl font-semibold text-center text-green-700 mb-6">
+          Login
+        </h2>
+
         <form onSubmit={handleLogin}>
           <div className="mb-4">
             <label className="block text-gray-700 mb-1">Email</label>
@@ -70,7 +92,9 @@ const Login: React.FC = () => {
             />
           </div>
 
-          {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
+          {error && (
+            <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
+          )}
 
           <button
             type="submit"
@@ -81,7 +105,7 @@ const Login: React.FC = () => {
         </form>
 
         <p className="text-center text-sm mt-4">
-          Don’t have an account?{' '}
+          Don’t have an account?{" "}
           <Link to="/signup" className="text-green-600 hover:underline">
             Signup here
           </Link>
