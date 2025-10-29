@@ -11,9 +11,10 @@ export default function UserDashboard() {
   useEffect(() => {
     const timer = setTimeout(() => {
       navigate("/home"); // your shop home route (adjust if needed)
-    }, 5000);
+    }, 4000);
 
-    return () => clearTimeout(timer); // cleanup timer
+    return () =>
+       clearTimeout(timer); // cleanup timer
   }, [navigate])
 
   return (

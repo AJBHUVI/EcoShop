@@ -1,6 +1,7 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import db from "../config/db.js";
+import { log } from "console";
 
 const router = express.Router();
 
@@ -37,6 +38,7 @@ router.post("/signup", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log("req.body");
 
     // Find user by email
     const [rows] = await db.query("SELECT * FROM users WHERE email = ?", [email]);

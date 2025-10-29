@@ -1,11 +1,9 @@
 import express from "express";
+import db from "../config/db.js"; // ✅ make sure this connects to MySQL
 
 const router = express.Router();
 
-// Temporary in-memory storage
-let messages = [];
-
-// POST /contact - receive message
+// POST /contact — receive message and save to DB
 router.post("/", (req, res) => {
   const { firstName, lastName, email, subject, message } = req.body;
 
@@ -13,24 +11,29 @@ router.post("/", (req, res) => {
     return res.status(400).json({ error: "All fields are required" });
   }
 
-  const newMessage = {
-    id: messages.length + 1,
-    firstName,
-    lastName,
-    email,
-    subject,
-    message,
-    date: new Date().toLocaleString(),
-  };
+  const sql =
+    "INSERT INTO contact_messages (firstname, lastname, email, subject, message) VALUES (?, ?, ?, ?, ?)";
 
-  messages.push(newMessage);
+  db.query(sql, [firstName, lastName, email, subject, message], (err, result) => {
+    if (err) {
+      console.error("❌ Error inserting message:", err);
+      return res.status(500).json({ error: "Database insert failed" });
+    }
 
-  res.status(200).json({ success: true, message: "Message sent successfully" });
+    res.status(200).json({ success: true, message: "Message stored successfully" });
+  });
 });
 
-// GET /contact/messages - admin view
+// GET /contact/messages — fetch all feedback
 router.get("/messages", (req, res) => {
-  res.json(messages);
+  const sql = "SELECT * FROM contact_messages ORDER BY date DESC";
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("❌ Error fetching messages:", err);
+      return res.status(500).json({ error: "Database fetch failed" });
+    }
+    res.json(results);
+  });
 });
 
 export default router;

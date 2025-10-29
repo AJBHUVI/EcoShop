@@ -4,6 +4,7 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 import { fileURLToPath } from 'url';
 
 import usersRouter from './routes/users.js';
@@ -18,12 +19,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(express.json());
-app.use(cors()); // optional; can be removed later when frontend+backend share domain
+app.use(cors()); // optional; can remove later if same origin
 
 // ----------------------------
 // API ROUTES
 // ----------------------------
-app.use("/", usersRouter);
+app.use('/', usersRouter);
 app.use('/users', usersRouter);
 app.use('/products', productsRouter);
 app.use('/categories', categoriesRouter);
@@ -31,19 +32,30 @@ app.use('/orders', ordersRouter);
 app.use('/contact', contactRouter);
 
 // ----------------------------
-// SERVE FRONTEND BUILD (React)
+// FRONTEND HANDLING
 // ----------------------------
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
-
-// For any non-API routes → send index.html (so React Router works)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
-});
+if (process.env.NODE_ENV === 'development') {
+  // ✅ Use proxy during npm run watch
+  app.use(
+    '/',
+    createProxyMiddleware({
+      target: 'http://localhost:5173', // your Vite dev server
+      changeOrigin: true,
+      ws: true, // WebSocket support for hot reload
+    })
+  );
+} else {
+  // ✅ Use built files for production
+  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+  });
+}
 
 // ----------------------------
 // START SERVER
 // ----------------------------
-const PORT = 80; // 👈 now runs on port 80 (no need :5002)
+const PORT = 80; // 👈 No need for port number in URL
 app.listen(PORT, () => {
   console.log(`✅ EcoShop running on http://localhost`);
 });
