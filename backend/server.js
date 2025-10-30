@@ -44,13 +44,14 @@ if (process.env.NODE_ENV === 'development') {
       ws: true, // WebSocket support for hot reload
     })
   );
-} else {
-  // ✅ Use built files for production
-  app.use(express.static(path.join(__dirname, '../frontend/dist')));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
-  });
 }
+//  else {
+//   // ✅ Use built files for production
+//   app.use(express.static(path.join(__dirname, '../frontend/dist')));
+//   app.get('*', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+//   });
+// }
 
 // ----------------------------
 // START SERVER

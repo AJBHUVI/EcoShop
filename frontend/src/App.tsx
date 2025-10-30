@@ -15,7 +15,7 @@ import Checkout from "./pages/Checkout";
 import Wishlist from "./pages/Wishlist";
 import About from "./pages/About";
 import Sustainability from "./pages/Sustainability";
-import Contact from "./pages/Contact";
+import Feedback from "./pages/Feedback";
 import Messages from "./pages/messages";
 
 // Admin pages
@@ -47,7 +47,7 @@ const App = () => (
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/about" element={<About />} />
               <Route path="/sustainability" element={<Sustainability />} />
-              <Route path="/contact" element={<Contact />} />
+              <Route path="/feedback" element={<Feedback />} />
               <Route path="/user-dashboard" element={<UserDashboard />} />
 
               {/* Admin routes */}
