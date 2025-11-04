@@ -23,6 +23,12 @@ router.post("/bulk-insert", async (req, res) => {
       return res.status(400).json({ message: "No products received" });
     }
 
+    // ✅ Check if products table already has data
+    const [existing] = await db.query("SELECT COUNT(*) AS count FROM products");
+    if (existing[0].count > 0) {
+      return res.json({ message: "⚠️ Products already exist, skipping insert." });
+    }
+
     // Prepare data for bulk insert
     const values = products.map((p) => [
       p.name,

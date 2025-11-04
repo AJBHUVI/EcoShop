@@ -19,19 +19,6 @@ export default function Shop() {
   const [selectedCategory, setSelectedCategory] = useState("All"); // ✅ category state
 
   useEffect(() => {
-    fetch("/products")
-      .then((res) => {
-        if (!res.ok) throw new Error(`Server error: ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        console.log("DB Products fetched:", data);
-        setDbProducts(data);
-      })
-      .catch((err) => console.error("Error fetching products:", err));
-  }, []);
-
-  useEffect(() => {
   async function uploadStaticProducts() {
     try {
       const res = await fetch("/products/bulk-insert", {
@@ -51,6 +38,7 @@ export default function Shop() {
   // 🧩 Run this once (then comment it out)
   uploadStaticProducts();
 }, []);
+
 
   // ✅ Static demo products
   const staticProducts: Product[] = [
