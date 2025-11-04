@@ -7,14 +7,14 @@ export default function Cart() {
   // Mock cart data
   const cartItems = [
     {
-      id: 1,
+      product_id: 1,
       name: "Organic Cotton T-Shirt",
       price: 45,
       quantity: 2,
       image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200&auto=format&fit=crop",
     },
     {
-      id: 2,
+      product_id: 2,
       name: "Bamboo Sunglasses",
       price: 89,
       quantity: 1,
@@ -35,7 +35,7 @@ export default function Cart() {
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
             {cartItems.map((item) => (
-              <Card key={item.id} className="p-4">
+              <Card key={item.product_id} className="p-4">
                 <div className="flex gap-4">
                   <img
                     src={item.image}

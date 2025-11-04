@@ -2,10 +2,13 @@ import { Link, useLocation } from "react-router-dom";
 import { ShoppingCart, User, Menu, Search, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useCart } from "@/components/CartContext";  // ✅ added
 
 export const Navbar = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { cart } = useCart(); // ✅ added
+  const cartCount = cart.reduce((total, item) => total + item.quantity, 0); // ✅ added
 
   const navLinks = [
     { name: "Home", path: "/home" },
@@ -53,9 +56,11 @@ export const Navbar = () => {
             <Link to="/cart">
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingCart className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  0
-                </span>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
               </Button>
             </Link>
             <Button variant="ghost" size="icon" className="hidden md:flex">

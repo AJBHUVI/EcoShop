@@ -34,44 +34,38 @@ router.post("/signup", async (req, res) => {
 });
 
 
-// ✅ LOGIN
+// ✅ LOGIN ROUTE
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("req.body");
 
-    // Find user by email
     const [rows] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
-
     if (rows.length === 0) {
-      return res.status(400).json({ error: "User not found" });
+      return res.status(400).json({ success: false, error: "User not found" });
     }
 
     const user = rows[0];
-
-    // Compare password
     const match = await bcrypt.compare(password, user.password);
+
     if (!match) {
-      return res.status(401).json({ error: "Invalid password" });
+      return res.status(401).json({ success: false, error: "Invalid password" });
     }
 
-    // ✅ Determine role based on is_admin
-    const role = user.is_admin === 0 ? "admin" : "user";
+    // ✅ Return correct user_id
+    res.json({
+      success: true,
+      message: "Login successful",
+      user: {
+        user_id: user.user_id, // match DB
+        name: user.name,
+        email: user.email,
+        is_admin: user.is_admin,
+      },
+    });
 
-    // ✅ Return user info and role
-   res.json({
-  success: true,
-  message: "Login successful",
-  role, // <-- sending that role
-  user: {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-  },
-});
   } catch (err) {
     console.error("Login error:", err);
-    res.status(500).json({ error: "Login failed" });
+    res.status(500).json({ success: false, error: "Login failed" });
   }
 });
 

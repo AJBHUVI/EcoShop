@@ -1,5 +1,6 @@
+// frontend/src/pages/Feedback.tsx
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,17 +21,35 @@ export default function Contact() {
 
   const [status, setStatus] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  // Handle form field changes
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus("Sending...");
+  // ✅ Handle form submission
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setStatus("Sending...");
 
-    try {
-      await axios.post("/contact", formData);
-      setStatus("✅ Message sent successfully!");
+  try {
+    // ✅ Get user_id from localStorage directly
+    const userId = localStorage.getItem("user_id");
+
+    if (!userId) {
+      setStatus("⚠️ Please log in before sending feedback.");
+      return;
+    }
+
+    const updatedData = { ...formData, user_id: userId };
+    console.log("Sending feedback:", updatedData);
+
+    await axios.post("/contact", updatedData);
+    setStatus("✅ Message sent successfully!");
+
+
+      // Reset form fields
       setFormData({
         firstName: "",
         lastName: "",
@@ -38,7 +57,9 @@ export default function Contact() {
         subject: "",
         message: "",
       });
-       navigate("/user-dashboard", {
+
+      // Redirect after success
+      navigate("/user-dashboard", {
         state: { message: "Your feedback was submitted successfully!" },
       });
     } catch (error) {
@@ -54,26 +75,40 @@ export default function Contact() {
           <div className="text-center mb-12 animate-fade-in">
             <h1 className="text-4xl font-bold mb-4">Get in Touch</h1>
             <p className="text-xl text-muted-foreground">
-              We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+              We'd love to hear from you. Send us a message and we'll respond as
+              soon as possible.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Contact Form */}
-            <Card className="lg:col-span-2 p-8 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+            <Card
+              className="lg:col-span-2 p-8 animate-fade-in"
+              style={{ animationDelay: "0.2s" }}
+            >
               <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="firstName" className="block text-sm font-medium mb-2">
                       First Name
                     </label>
-                    <Input id="firstName" value={formData.firstName} onChange={handleChange} placeholder="John" />
+                    <Input
+                      id="firstName"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      placeholder="Firstname"
+                    />
                   </div>
                   <div>
                     <label htmlFor="lastName" className="block text-sm font-medium mb-2">
                       Last Name
                     </label>
-                    <Input id="lastName" value={formData.lastName} onChange={handleChange} placeholder="Doe" />
+                    <Input
+                      id="lastName"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      placeholder="Lastname"
+                    />
                   </div>
                 </div>
 
@@ -81,14 +116,25 @@ export default function Contact() {
                   <label htmlFor="email" className="block text-sm font-medium mb-2">
                     Email
                   </label>
-                  <Input id="email" type="email" value={formData.email} onChange={handleChange} placeholder="john@example.com" />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="john@example.com"
+                  />
                 </div>
 
                 <div>
                   <label htmlFor="subject" className="block text-sm font-medium mb-2">
                     Subject
                   </label>
-                  <Input id="subject" value={formData.subject} onChange={handleChange} placeholder="How can we help?" />
+                  <Input
+                    id="subject"
+                    value={formData.subject}
+                    onChange={handleChange}
+                    placeholder="How can we help?"
+                  />
                 </div>
 
                 <div>
@@ -112,8 +158,41 @@ export default function Contact() {
               </form>
             </Card>
 
-            {/* Contact Info (unchanged) */}
-            {/* ... keep your Mail / Phone / MapPin cards ... */}
+            {/* Contact Info */}
+            <div
+              className="space-y-6 animate-fade-in"
+              style={{ animationDelay: "0.3s" }}
+            >
+              <Card className="p-6 flex items-start space-x-4">
+                <Mail className="text-primary" />
+                <div>
+                  <h3 className="font-semibold">Email</h3>
+                  <p className="text-sm text-muted-foreground">
+                    support@wonderwhy.in
+                  </p>
+                </div>
+              </Card>
+
+              <Card className="p-6 flex items-start space-x-4">
+                <Phone className="text-primary" />
+                <div>
+                  <h3 className="font-semibold">Phone</h3>
+                  <p className="text-sm text-muted-foreground">
+                    +91 98765 43210
+                  </p>
+                </div>
+              </Card>
+
+              <Card className="p-6 flex items-start space-x-4">
+                <MapPin className="text-primary" />
+                <div>
+                  <h3 className="font-semibold">Address</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Erode, Tamil Nadu, India
+                  </p>
+                </div>
+              </Card>
+            </div>
           </div>
         </div>
       </div>

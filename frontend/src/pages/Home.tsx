@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ProductCard } from "@/components/ProductCard";
+import  ProductCard from "@/components/ProductCard";
 import { ArrowRight, Leaf, Recycle, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import heroBanner from "@/assets/hero-banner.jpg";
@@ -29,13 +29,14 @@ export default function Home() {
       category: "Accessories",
       rating: 4.6,
     },
-    {
-      id: 3,
-      name: "Recycled Yoga Mat",
-      price: 68,
-      image: "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=800&auto=format&fit=crop",
-      category: "Fitness",
-      rating: 4.9,
+    {id: 3, name: "Slipper", price: 239, image: "/images/slipper.jpeg", category: "Footwear", rating: 4.1 
+
+      // id: 3,
+      // name: "Recycled Yoga Mat",
+      // price: 68,
+      // image: "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=800&auto=format&fit=crop",
+      // category: "Fitness",
+      // rating: 4.9,
     },
     {
       id: 4,

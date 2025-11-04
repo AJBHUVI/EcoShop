@@ -12,6 +12,7 @@ import productsRouter from './routes/products.js';
 import categoriesRouter from './routes/categories.js';
 import ordersRouter from './routes/orders.js';
 import contactRouter from './routes/contact.js';
+import cartRouter from "./routes/cart.js";
 import './config/db.js'; // ✅ ensures MySQL connects
 
 const app = express();
@@ -30,7 +31,7 @@ app.use('/products', productsRouter);
 app.use('/categories', categoriesRouter);
 app.use('/orders', ordersRouter);
 app.use('/contact', contactRouter);
-
+app.use("/cart", cartRouter);
 // ----------------------------
 // FRONTEND HANDLING
 // ----------------------------
@@ -45,14 +46,6 @@ if (process.env.NODE_ENV === 'development') {
     })
   );
 }
-//  else {
-//   // ✅ Use built files for production
-//   app.use(express.static(path.join(__dirname, '../frontend/dist')));
-//   app.get('*', (req, res) => {
-//     res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
-//   });
-// }
-
 // ----------------------------
 // START SERVER
 // ----------------------------

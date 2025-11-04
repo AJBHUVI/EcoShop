@@ -1,60 +1,64 @@
-import { Link } from "react-router-dom";
-import { Heart, ShoppingCart } from "lucide-react";
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { ShoppingCart, Eye } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useCart } from "./CartContext";
 
 interface ProductCardProps {
-  id: number;
+  product_id: number;
   name: string;
   price: number;
-  image: string;
-  category: string;
+  image?: string;
+  category?: string;
   rating?: number;
+  quickAdd?: boolean;
 }
 
-export const ProductCard = ({ id, name, price, image, category, rating = 4.5 }: ProductCardProps) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product_id, name, price, image }) => {
+  const { addToCart } = useCart();
+
+  const handleAddToCart = () => {
+    addToCart({ product_id, name, price, image, quantity: 1 });
+    console.log( product_id, name, price, image );
+    
+  };
+
+
   return (
-    <Card className="group overflow-hidden hover-tilt border-border/50 bg-card">
-      <Link to={`/product/${id}`}>
-        <div className="relative overflow-hidden aspect-square">
-          <img
-            src={image}
-            alt={name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <div className="absolute bottom-4 left-4 right-4 flex gap-2">
-              <Button size="sm" className="flex-1">
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                Quick Add
-              </Button>
-              <Button size="sm" variant="secondary">
-                <Heart className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-          <div className="absolute top-4 left-4">
-            <span className="bg-primary text-primary-foreground text-xs px-3 py-1 rounded-full font-medium">
-              {category}
-            </span>
-          </div>
-        </div>
-      </Link>
-      
-      <div className="p-4">
-        <Link to={`/product/${id}`}>
-          <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
-            {name}
-          </h3>
+    <div className="bg-white rounded-xl shadow-md p-4 flex flex-col transition hover:shadow-lg hover:-translate-y-1 duration-300">
+      {/* Product image */}
+      <img
+        src={image}
+        alt={name}
+        className="h-56 w-full object-cover rounded-md mb-3 transition-transform duration-300 hover:scale-95"
+      />
+
+      {/* Product name and price */}
+      <h3 className="font-semibold text-lg">{name}</h3>
+      <p className="text-gray-600 mb-3">${price}</p>
+
+      {/* Buttons */}
+      <div className="flex gap-2 mt-auto">
+        {/* ✅ Corrected View button */}
+        <Link to={`/product/${product_id}`} className="w-1/2">
+          <Button
+            variant="outline"
+            className="w-full flex items-center justify-center gap-2 border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white transition-all font-medium"
+          >
+            <Eye className="h-4 w-4" /> View
+          </Button>
         </Link>
-        <div className="flex items-center justify-between">
-          <span className="text-xl font-bold text-primary">${price}</span>
-          <div className="flex items-center text-sm text-muted-foreground">
-            <span className="text-secondary mr-1">★</span>
-            {rating}
-          </div>
-        </div>
+
+        {/* Add to Cart button */}
+        <Button
+          onClick={handleAddToCart}
+          className="w-1/2 flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 font-medium"
+        >
+          <ShoppingCart className="h-4 w-4" /> Add
+        </Button>
       </div>
-    </Card>
+    </div>
   );
 };
+
+export default ProductCard;
