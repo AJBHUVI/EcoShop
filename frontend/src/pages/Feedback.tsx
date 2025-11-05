@@ -34,8 +34,8 @@ export default function Contact() {
   setStatus("Sending...");
 
   try {
-    // ✅ Get user_id from localStorage directly
-    const userId = localStorage.getItem("user_id");
+    // ✅ Get user_id from sessionStorage directly
+    const userId = sessionStorage.getItem("user_id");
 
     if (!userId) {
       setStatus("⚠️ Please log in before sending feedback.");

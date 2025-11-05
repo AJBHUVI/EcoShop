@@ -19,26 +19,17 @@ export default function Shop() {
   const [selectedCategory, setSelectedCategory] = useState("All"); // ✅ category state
 
   useEffect(() => {
-  async function uploadStaticProducts() {
+  const fetchProducts = async () => {
     try {
-      const res = await fetch("/products/bulk-insert", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(staticProducts),
-      });
-
-      if (!res.ok) throw new Error(`Failed to upload: ${res.status}`);
+      const res = await fetch("/products");
       const data = await res.json();
-      console.log("✅ Uploaded successfully:", data);
+      setDbProducts(data);
     } catch (error) {
-      console.error("❌ Upload error:", error);
+      console.error("❌ Error fetching products:", error);
     }
-  }
-
-  // 🧩 Run this once (then comment it out)
-  uploadStaticProducts();
+  };
+  fetchProducts();
 }, []);
-
 
   // ✅ Static demo products
   const staticProducts: Product[] = [
@@ -80,6 +71,8 @@ export default function Shop() {
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) || product.category.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+  console.log(...allProducts);
+  
 
   return (
     <div className="min-h-screen">

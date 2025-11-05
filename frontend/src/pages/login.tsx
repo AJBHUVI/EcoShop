@@ -20,11 +20,11 @@ const Login: React.FC = () => {
         const user = data.user;
 
         // ✅ Save full user info
-        localStorage.setItem("user", JSON.stringify(user));
-        localStorage.setItem("user_id", user.user_id); // ✅ correct field name
-        localStorage.setItem("user_email", user.email);
-        localStorage.setItem("user_name", user.name);
-        localStorage.setItem("is_admin", user.is_admin);
+        sessionStorage.setItem("user", JSON.stringify(user));
+        sessionStorage.setItem("user_id", user.user_id); // ✅ correct field name
+        sessionStorage.setItem("user_email", user.email);
+        sessionStorage.setItem("user_name", user.name);
+        sessionStorage.setItem("is_admin", user.is_admin);
 
         toast.success(
           `Welcome ${user.is_admin === 0 ? "ADMIN" : "USER"}! 🎉`,

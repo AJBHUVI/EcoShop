@@ -3,7 +3,7 @@ import db from "../config/db.js";
 
 const router = express.Router();
 
-// Add item to cart
+// 🛒 Add item to cart
 router.post("/add", async (req, res) => {
   try {
     const { user_id, product_id, quantity } = req.body;
@@ -13,19 +13,18 @@ router.post("/add", async (req, res) => {
     }
 
     await db.query(
-      "INSERT INTO cart_items (user_id, product_id, quantity) VALUES (?, ?, ?)" ,
-      [user_id, product_id, quantity, quantity]
+      "INSERT INTO cart_items (user_id, product_id, quantity) VALUES (?, ?, ?)",
+      [user_id, product_id, quantity]
     );
 
-    res.json({ message: "Item added to cart_items table" });
+    res.json({ message: "✅ Item added to cart_items table" });
   } catch (err) {
     console.error("Error inserting cart item:", err);
     res.status(500).json({ error: "Failed to insert into DB" });
   }
 });
 
-
-// ✅ Fetch user's cart items
+// 🛒 Fetch user's cart items
 router.get("/:user_id", async (req, res) => {
   try {
     const { user_id } = req.params;
@@ -43,8 +42,8 @@ router.get("/:user_id", async (req, res) => {
   }
 });
 
-// ✅ Remove item from user's cart
-router.delete("/:product_id", async (req, res) => {
+// 🗑️ Remove item
+router.delete("/:id", async (req, res) => {
   try {
     await db.query("DELETE FROM cart_items WHERE id = ?", [req.params.id]);
     res.json({ message: "🗑️ Item removed from cart" });
