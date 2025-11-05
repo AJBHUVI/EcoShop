@@ -14,19 +14,13 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ Bulk insert products — placed ABOVE :product_id
+// ✅ Bulk insert products — safe, no duplicates
 router.post("/bulk-insert", async (req, res) => {
   try {
     const products = req.body;
 
     if (!Array.isArray(products) || products.length === 0) {
       return res.status(400).json({ message: "No products received" });
-    }
-
-    // ✅ Check if products table already has data
-    const [existing] = await db.query("SELECT COUNT(*) AS count FROM products");
-    if (existing[0].count > 0) {
-      return res.json({ message: "⚠️ Products already exist, skipping insert." });
     }
 
     // Prepare data for bulk insert
@@ -38,12 +32,13 @@ router.post("/bulk-insert", async (req, res) => {
       p.description || "",
     ]);
 
+    // ✅ Insert all products, skip duplicates using INSERT IGNORE
     await db.query(
-      "INSERT INTO products (name, price, category, image, description) VALUES ?",
+      "INSERT IGNORE INTO products (name, price, category, image, description) VALUES ?",
       [values]
     );
 
-    res.json({ message: "✅ Bulk insert success", count: products.length });
+    res.json({ message: "✅ Bulk insert success (duplicates skipped if any)", count: products.length });
   } catch (err) {
     console.error("❌ Bulk insert error:", err);
     res.status(500).json({ message: "Server error inserting products" });

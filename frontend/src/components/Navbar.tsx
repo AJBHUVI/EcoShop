@@ -63,6 +63,9 @@ export const Navbar = () => {
                 )}
               </Button>
             </Link>
+            
+           <Link to="/orders" className="hover:text-blue-500">Orders</Link>
+
             <Button variant="ghost" size="icon" className="hidden md:flex">
               <User className="h-5 w-5" />
             </Button>

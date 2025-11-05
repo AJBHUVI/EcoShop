@@ -1,12 +1,21 @@
+// src/pages/CartPage.tsx
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import { useCart } from "@/components/CartContext";
 import { Button } from "@/components/ui/button";
 
-const CartPage = () => {
+const CartPage: React.FC = () => {
+  const navigate = useNavigate();
   const { cart, updateQuantity, removeFromCart } = useCart();
 
   const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
   const shipping = cart.length > 0 ? 10 : 0;
   const total = subtotal + shipping;
+
+  const handleProceedToCheckout = () => {
+    // Only navigate — checkout page will read cart from CartContext.
+    navigate("/checkout");
+  };
 
   return (
     <div className="flex justify-between p-8">
@@ -21,9 +30,21 @@ const CartPage = () => {
                 <h3 className="font-semibold">{item.name}</h3>
                 <p>${item.price}</p>
                 <div className="flex items-center mt-2">
-                  <button onClick={() => updateQuantity(item.product_id, -1)}>-</button>
+                  <button
+                    onClick={() => updateQuantity(item.product_id, -1)}
+                    aria-label={`Decrease quantity of ${item.name}`}
+                    className="px-2 py-1 border rounded"
+                  >
+                    -
+                  </button>
                   <span className="mx-3">{item.quantity}</span>
-                  <button onClick={() => updateQuantity(item.product_id, 1)}>+</button>
+                  <button
+                    onClick={() => updateQuantity(item.product_id, 1)}
+                    aria-label={`Increase quantity of ${item.name}`}
+                    className="px-2 py-1 border rounded"
+                  >
+                    +
+                  </button>
                 </div>
               </div>
               <Button variant="destructive" onClick={() => removeFromCart(item.product_id)}>
@@ -39,7 +60,9 @@ const CartPage = () => {
         <p>Subtotal: ${subtotal.toFixed(2)}</p>
         <p>Shipping: ${shipping.toFixed(2)}</p>
         <p className="font-bold text-green-600 mt-2">Total: ${total.toFixed(2)}</p>
-        <Button className="mt-4 w-full">Proceed to Checkout</Button>
+        <Button className="mt-4 w-full" onClick={handleProceedToCheckout}>
+          Proceed to Checkout
+        </Button>
       </div>
     </div>
   );

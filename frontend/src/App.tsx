@@ -25,6 +25,7 @@ import Signup from "./pages/signup";
 import Dashboard from "./pages/dashboard";
 import NotFound from "./pages/NotFound";
 import UserDashboard from "./pages/user-dashboard";
+import Orders from "./components/Orders";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,7 @@ const App = () => (
                 <Route path="/sustainability" element={<Sustainability />} />
                 <Route path="/feedback" element={<Feedback />} />
                 <Route path="/user-dashboard" element={<UserDashboard />} />
+                <Route path="/orders" element={<Orders />} />
 
                 {/* Admin routes */}
                 <Route path="/login" element={<Login />} />
