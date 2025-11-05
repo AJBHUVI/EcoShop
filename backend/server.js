@@ -13,6 +13,7 @@ import categoriesRouter from './routes/categories.js';
 import ordersRouter from './routes/orders.js';
 import contactRouter from './routes/contact.js';
 import cartRouter from "./routes/cart.js";
+import favoritesRouter from "./routes/favorites.js"
 import './config/db.js'; // ✅ ensures MySQL connects
 
 const app = express();
@@ -32,6 +33,7 @@ app.use('/categories', categoriesRouter);
 app.use('/orders', ordersRouter);
 app.use('/contact', contactRouter);
 app.use("/cart", cartRouter);
+app.use('/favorites',favoritesRouter);
 // ----------------------------
 // FRONTEND HANDLING
 // ----------------------------

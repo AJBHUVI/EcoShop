@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import axios from "axios";
 
 interface Product {
   product_id: number;
@@ -21,26 +22,42 @@ const FavoriteContext = createContext<FavoriteContextType | undefined>(undefined
 export const FavoriteProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [favorites, setFavorites] = useState<Product[]>([]);
 
-  // ✅ Load favorites from localStorage on mount
+  // Load favorites from DB
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("favorites") || "[]");
-    setFavorites(saved);
+    const fetchFavorites = async () => {
+      const user_id = sessionStorage.getItem("user_id");
+      if (!user_id) return;
+      try {
+        const res = await axios.get(`/favorites/${user_id}`);
+        setFavorites(res.data);
+      } catch (err) {
+        console.error("Failed to fetch favorites", err);
+      }
+    };
+    fetchFavorites();
   }, []);
-
-  // ✅ Save favorites to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("favorites", JSON.stringify(favorites));
-  }, [favorites]);
 
   const addToFavorites = (product: Product) => {
     setFavorites((prev) => {
       if (prev.find((p) => p.product_id === product.product_id)) return prev;
       return [...prev, product];
     });
+
+    // ✅ Add to DB
+    const user_id = sessionStorage.getItem("user_id");
+    if (!user_id) return;
+    axios.post(`/favorites`, { user_id, product_id: product.product_id })
+      .catch((err) => console.error("Failed to add favorite to DB", err));
   };
 
   const removeFromFavorites = (product_id: number) => {
     setFavorites((prev) => prev.filter((p) => p.product_id !== product_id));
+
+    // ✅ Remove from DB
+    const user_id = sessionStorage.getItem("user_id");
+    if (!user_id) return;
+    axios.delete(`/favorites/${product_id}`, { data: { user_id } })
+      .catch((err) => console.error("Failed to remove favorite from DB", err));
   };
 
   const isFavorite = (product_id: number) =>

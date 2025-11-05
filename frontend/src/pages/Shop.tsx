@@ -71,7 +71,7 @@ export default function Shop() {
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) || product.category.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
-  console.log(...allProducts);
+  // console.log(...allProducts);
   
 
   return (
