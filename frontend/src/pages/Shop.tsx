@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,25 +14,37 @@ interface Product {
   rating: number;
 }
 
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 export default function Shop() {
-  const [searchQuery, setSearchQuery] = useState("");
+  const query = useQuery();
+  const q = query.get("q") ?? "";
+
+  const [searchQuery, setSearchQuery] = useState<string>(q);
   const [dbProducts, setDbProducts] = useState<Product[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState("All"); // ✅ category state
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+
+  // Keep searchQuery in sync if user navigates directly to /shop?q=...
+  useEffect(() => {
+    setSearchQuery(q);
+  }, [q]);
 
   useEffect(() => {
-  const fetchProducts = async () => {
-    try {
-      const res = await fetch("/products");
-      const data = await res.json();
-      setDbProducts(data);
-    } catch (error) {
-      console.error("❌ Error fetching products:", error);
-    }
-  };
-  fetchProducts();
-}, []);
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch("/products");
+        const data = await res.json();
+        setDbProducts(data || []);
+      } catch (error) {
+        console.error("❌ Error fetching products:", error);
+      }
+    };
+    fetchProducts();
+  }, []);
 
-  // ✅ Static demo products
+  // Static demo items (same as before)
   const staticProducts: Product[] = [
     { product_id: 1, name: "Organic Cotton T-Shirt", price: 45, image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&auto=format&fit=crop", category: "Clothing", rating: 4.8 },
     { product_id: 2, name: "Bamboo Sunglasses", price: 89, image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&auto=format&fit=crop", category: "Accessories", rating: 4.6 },
@@ -51,28 +64,26 @@ export default function Shop() {
     { product_id: 16, name: "Shirt", price: 450, image: "/images/shirts.webp", category: "Clothing", rating: 4.8 },
   ];
 
-  // ✅ Merge static + DB
   const allProducts: Product[] = [
     ...staticProducts,
     ...dbProducts.filter((db) => !staticProducts.some((sp) => sp.product_id === db.product_id)),
   ];
 
-  // ✅ Extract unique categories dynamically
-  const categories = ["All", ...new Set(allProducts.map((p) => p.category))];
-  // console.log("Before",allProducts);
-  
-  // console.log("After",...allProducts);
-  
+  const categories = ["All", ...Array.from(new Set(allProducts.map((p) => p.category)))];
 
-  // ✅ Apply both category & search filtering
-  const filteredProducts = allProducts.filter((product) => {
-    const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
-    const matchesSearch =
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) || product.category.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
-  // console.log(...allProducts);
-  
+  // Use searchQuery (which is synced with ?q= via Navbar) and category to filter
+  const filteredProducts = useMemo(() => {
+    const sq = (searchQuery || "").trim().toLowerCase();
+    return allProducts.filter((product) => {
+      const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
+      const matchesSearch =
+        !sq ||
+        product.name.toLowerCase().includes(sq) ||
+        product.category.toLowerCase().includes(sq) ||
+        (product.product_id && String(product.product_id).includes(sq));
+      return matchesCategory && matchesSearch;
+    });
+  }, [allProducts, selectedCategory, searchQuery]);
 
   return (
     <div className="min-h-screen">
@@ -102,43 +113,32 @@ export default function Shop() {
           </Button>
         </div>
 
-        {/* ✅ Category Buttons */}
+        {/* Category Buttons */}
         <div className="flex flex-wrap gap-3 mb-10">
           {categories.map((cat) => (
             <Button
               key={cat}
               variant={selectedCategory === cat ? "default" : "outline"}
               onClick={() => setSelectedCategory(cat)}
-              className={`rounded-full px-5 py-2 ${
-                selectedCategory === cat ? "bg-green-600 text-white" : ""
-              }`}
+              className={`rounded-full px-5 py-2 ${selectedCategory === cat ? "bg-green-600 text-white" : ""}`}
             >
               {cat}
             </Button>
           ))}
         </div>
 
-       {/* ✅ Products Grid */}
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-  {filteredProducts.map((product, index) => (
-    <div
-      key={`${product.product_id}-${index}`}
-      className="animate-fade-in"
-      style={{ animationDelay: `${index * 0.05}s` }}
-    >
-      <ProductCard
-        {...product}
-        quickAdd // ✅ new prop
-      />
-    </div>
-  ))}
-</div>
+        {/* Products Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredProducts.map((product, index) => (
+            <div key={`${product.product_id}-${index}`} className="animate-fade-in" style={{ animationDelay: `${index * 0.05}s` }}>
+              <ProductCard {...product} quickAdd />
+            </div>
+          ))}
+        </div>
 
         {filteredProducts.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">
-              No products found in this category.
-            </p>
+            <p className="text-muted-foreground text-lg">No products found{q ? ` for "${q}"` : ""}.</p>
           </div>
         )}
       </div>

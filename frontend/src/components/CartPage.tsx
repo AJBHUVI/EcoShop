@@ -8,12 +8,11 @@ const CartPage: React.FC = () => {
   const navigate = useNavigate();
   const { cart, updateQuantity, removeFromCart } = useCart();
 
-  const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  const subtotal = cart.reduce((total, item) => total + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
   const shipping = cart.length > 0 ? 10 : 0;
   const total = subtotal + shipping;
 
   const handleProceedToCheckout = () => {
-    // Only navigate — checkout page will read cart from CartContext.
     navigate("/checkout");
   };
 
@@ -23,12 +22,12 @@ const CartPage: React.FC = () => {
         {cart.length === 0 ? (
           <p>Your cart is empty.</p>
         ) : (
-          cart.map((item) => (
-            <div key={item.product_id} className="flex items-center justify-between mb-6">
-              <img src={item.image} alt={item.name} className="w-24 h-24 object-cover rounded" />
+          cart.map((item, idx) => (
+            <div key={`${item.product_id ?? "p"}-${idx}`} className="flex items-center justify-between mb-6">
+              {item.image ? <img src={item.image} alt={item.name} className="w-24 h-24 object-cover rounded" /> : null}
               <div className="flex-1 ml-4">
                 <h3 className="font-semibold">{item.name}</h3>
-                <p>${item.price}</p>
+                <p>${(Number(item.price) || 0).toFixed(2)}</p>
                 <div className="flex items-center mt-2">
                   <button
                     onClick={() => updateQuantity(item.product_id, -1)}

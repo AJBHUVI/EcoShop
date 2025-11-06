@@ -9,7 +9,7 @@ import { Footer } from "./components/Footer";
 import { CartProvider } from "./components/CartContext"; // ✅ Add this line
 import CartDrawer from "./components/CartDrawer";
 import CartPage from "./components/CartPage";
-
+//import Orders from "./components/Orders";
 // Pages
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
@@ -25,7 +25,7 @@ import Signup from "./pages/signup";
 import Dashboard from "./pages/dashboard";
 import NotFound from "./pages/NotFound";
 import UserDashboard from "./pages/user-dashboard";
-import Orders from "./components/Orders";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -57,7 +57,8 @@ const App = () => (
                 <Route path="/sustainability" element={<Sustainability />} />
                 <Route path="/feedback" element={<Feedback />} />
                 <Route path="/user-dashboard" element={<UserDashboard />} />
-                <Route path="/orders" element={<Orders />} />
+                {/* <Route path="/orders" element={<Orders />} /> */}
+                <Route path="/profile" element={<Profile />} />
 
                 {/* Admin routes */}
                 <Route path="/login" element={<Login />} />

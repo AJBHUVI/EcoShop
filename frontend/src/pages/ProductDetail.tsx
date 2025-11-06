@@ -77,10 +77,7 @@ export default function ProductDetail() {
   };
 
   const relatedProducts = [
-    
-    {
-      product_id: 1, name: "Organic Cotton T-Shirt", price: 45, image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&auto=format&fit=crop", 
-      category: "Clothing", rating: 4.8 },
+  
     {
       product_id: 2,
       name: "Bamboo Sunglasses",
