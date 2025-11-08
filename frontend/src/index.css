@@ -110,20 +110,6 @@ All colors MUST be HSL.
     @apply font-bold tracking-tight;
   }
 }
-/* Add to global CSS */
-.home-hero {
-  position: relative !important;
-  z-index: 0 !important;
-}
-
-/* Use this class on your Cart page root element to guarantee it's above background/hero */
-.cart-page-root {
-  position: relative;
-  z-index: 40;      /* higher than .home-hero but below any modals that need to be above everything */
-  background: #fff; /* prevents bleed-through */
-  min-height: 100vh;
-}
-
 
 @layer utilities {
   /* Hover Scale Animation */
@@ -155,3 +141,4 @@ All colors MUST be HSL.
     scroll-behavior: smooth;
   }
 }
+

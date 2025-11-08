@@ -1,3 +1,4 @@
+// src/pages/Shop.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import ProductCard from "@/components/ProductCard";
@@ -26,11 +27,11 @@ export default function Shop() {
   const [dbProducts, setDbProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
-  // Keep searchQuery in sync if user navigates directly to /shop?q=...
   useEffect(() => {
     setSearchQuery(q);
   }, [q]);
 
+  // Fetch products from backend
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -44,7 +45,7 @@ export default function Shop() {
     fetchProducts();
   }, []);
 
-  // Static demo items (same as before)
+  // Static demo products
   const staticProducts: Product[] = [
     { product_id: 1, name: "Organic Cotton T-Shirt", price: 45, image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&auto=format&fit=crop", category: "Clothing", rating: 4.8 },
     { product_id: 2, name: "Bamboo Sunglasses", price: 89, image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&auto=format&fit=crop", category: "Accessories", rating: 4.6 },
@@ -71,7 +72,7 @@ export default function Shop() {
 
   const categories = ["All", ...Array.from(new Set(allProducts.map((p) => p.category)))];
 
-  // Use searchQuery (which is synced with ?q= via Navbar) and category to filter
+  // Filter products by search & category
   const filteredProducts = useMemo(() => {
     const sq = (searchQuery || "").trim().toLowerCase();
     return allProducts.filter((product) => {
@@ -130,15 +131,21 @@ export default function Shop() {
         {/* Products Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredProducts.map((product, index) => (
-            <div key={`${product.product_id}-${index}`} className="animate-fade-in" style={{ animationDelay: `${index * 0.05}s` }}>
-              <ProductCard {...product} quickAdd />
+            <div
+              key={`${product.product_id}-${index}`}
+              className="animate-fade-in"
+              style={{ animationDelay: `${index * 0.05}s` }}
+            >
+              <ProductCard {...product} quickAdd /> {/* ✅ QuickAdd fixed */}
             </div>
           ))}
         </div>
 
         {filteredProducts.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">No products found{q ? ` for "${q}"` : ""}.</p>
+            <p className="text-muted-foreground text-lg">
+              No products found{q ? ` for "${q}"` : ""}.
+            </p>
           </div>
         )}
       </div>

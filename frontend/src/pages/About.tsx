@@ -1,97 +1,131 @@
-import { Users, Target, Award } from "lucide-react";
+import { Users, Target, Award, Code, Layers, PackageSearch, Sparkles } from "lucide-react";
 
 export default function About() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-br from-primary/10 to-secondary/10">
+      <section className="relative py-24 bg-gradient-to-br from-primary/10 to-secondary/10">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-5xl font-bold mb-6 animate-fade-in">About EcoShop</h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            We're on a mission to make sustainable living accessible, affordable, and stylish for everyone
+          <h1 className="text-5xl font-bold mb-6 animate-fade-in">
+            About This Project
+          </h1>
+
+          <p
+            className="text-xl text-muted-foreground max-w-3xl mx-auto animate-fade-in"
+            style={{ animationDelay: "0.2s" }}
+          >
+            A modern full-stack e-commerce platform built from scratch with a
+            passion for clean UI, seamless shopping, and real-world development experience.
           </p>
         </div>
       </section>
 
       {/* Story Section */}
       <section className="container mx-auto px-4 py-20">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold mb-6">Our Story</h2>
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl font-bold mb-6">The Story Behind the Build</h2>
+
           <div className="space-y-4 text-lg text-muted-foreground">
             <p>
-              Founded in 2020, EcoShop began with a simple idea: what if shopping could be a force for good? 
-              Our founders, passionate about both style and sustainability, noticed a gap in the market for 
-              products that were both eco-friendly and beautifully designed.
+              This e-commerce application was built to replicate a real-world shopping
+              experience using the latest web technologies. The goal was simple —
+              create an intuitive, fast, and visually appealing online store with
+              features users expect in 2025.
             </p>
+
             <p>
-              Today, we work with over 200 sustainable brands and artisans worldwide, carefully curating 
-              products that meet our strict environmental and ethical standards. Every item in our collection 
-              tells a story of conscious craftsmanship and positive impact.
+              From product search to category filters, from animated cart drawers
+              to database-synced carts, every part of the platform is crafted to
+              feel clean, modern, and professional.
             </p>
+
             <p>
-              We believe that making sustainable choices shouldn't mean compromising on quality or style. 
-              That's why we're committed to bringing you products that are good for you, good for the planet, 
-              and good for the communities that make them.
+              This project showcases strong frontend design, backend development,
+              database logic, and user-focused UI decisions — all woven together
+              into one complete full-stack application.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Values Section */}
-      <section className="bg-muted/50 py-20">
+      {/* Stats Section */}
+      <section className="py-16 bg-muted/40">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Our Values</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="text-center p-6">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-                <Target className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Sustainability First</h3>
-              <p className="text-muted-foreground">
-                Every decision we make prioritizes environmental impact, from sourcing to shipping
-              </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 text-center max-w-4xl mx-auto">
+            <div className="p-6">
+              <h3 className="text-4xl font-bold text-primary">16+</h3>
+              <p className="text-muted-foreground">Static + Dynamic Products</p>
             </div>
-            <div className="text-center p-6">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-                <Users className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Community Driven</h3>
-              <p className="text-muted-foreground">
-                We support fair wages, safe working conditions, and local communities worldwide
-              </p>
+            <div className="p-6">
+              <h3 className="text-4xl font-bold text-primary">10+</h3>
+              <p className="text-muted-foreground">Core Features Implemented</p>
             </div>
-            <div className="text-center p-6">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-                <Award className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Quality Assured</h3>
-              <p className="text-muted-foreground">
-                We never compromise on quality - sustainable products that are built to last
-              </p>
+            <div className="p-6">
+              <h3 className="text-4xl font-bold text-primary">100%</h3>
+              <p className="text-muted-foreground">Responsive UI</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Team Section */}
+      {/* Features Grid */}
       <section className="container mx-auto px-4 py-20">
-        <h2 className="text-3xl font-bold text-center mb-12">Meet Our Team</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <h2 className="text-3xl font-bold text-center mb-12">
+          What This Project Includes
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-5xl mx-auto">
           {[
-            { name: "Sarah Chen", role: "Founder & CEO", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format&fit=crop" },
-            { name: "Marcus Rodriguez", role: "Head of Sustainability", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop" },
-            { name: "Aisha Patel", role: "Creative Director", image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&auto=format&fit=crop" },
-          ].map((member, index) => (
-            <div key={index} className="text-center animate-fade-in" style={{ animationDelay: `${index * 0.2}s` }}>
-              <img
-                src={member.image}
-                alt={member.name}
-                className="w-48 h-48 rounded-full mx-auto mb-4 object-cover"
-              />
-              <h3 className="text-xl font-semibold">{member.name}</h3>
-              <p className="text-muted-foreground">{member.role}</p>
+            {
+              icon: <Sparkles className="w-8 h-8 text-primary" />,
+              title: "Modern UI/UX",
+              desc: "Smooth animations, clean layouts, responsive grids, and reusable UI components.",
+            },
+            {
+              icon: <PackageSearch className="w-8 h-8 text-primary" />,
+              title: "Product Features",
+              desc: "Search, categories, filters, favorites, quick add, detailed product pages.",
+            },
+            {
+              icon: <Layers className="w-8 h-8 text-primary" />,
+              title: "Full-Stack Logic",
+              desc: "Cart API, MySQL database, user-specific cart storage, and backend routing.",
+            },
+          ].map((item, i) => (
+            <div key={i} className="text-center p-6 bg-white rounded-xl shadow-md">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 flex items-center justify-center bg-primary/10 rounded-full">
+                  {item.icon}
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
+              <p className="text-muted-foreground">{item.desc}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Developer Section */}
+      <section className="container mx-auto px-4 py-20">
+        <h2 className="text-3xl font-bold text-center mb-12">Developer</h2>
+
+        <div className="max-w-md mx-auto text-center animate-fade-in">
+          <div className="flex justify-center mb-6">
+            <div className="w-48 h-48 rounded-full bg-primary/10 flex items-center justify-center">
+              <Code className="w-20 h-20 text-primary" />
+            </div>
+          </div>
+
+          <h3 className="text-2xl font-semibold mb-2">Bhuvaneshwaran L</h3>
+
+          <p className="text-muted-foreground text-lg">Developer</p>
+
+          <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
+            Architected and developed the complete e-commerce platform
+            including the frontend, backend API, MySQL database, cart logic,
+            routing, dynamic filtering, UI design, product management,
+            and full responsive layout.
+          </p>
         </div>
       </section>
     </div>

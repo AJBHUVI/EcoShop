@@ -13,8 +13,8 @@ interface ProductCardProps {
   image?: string;
   category?: string;
   rating?: number;
-  // optional prop to allow full width in some contexts
   compact?: boolean;
+  quickAdd?: boolean; // ✅ Added for Shop page
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -25,6 +25,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   category,
   rating,
   compact = false,
+  quickAdd = false,
 }) => {
   const { addToCart } = useCart();
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
@@ -45,7 +46,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       }`}
       role="article"
     >
-      {/* heart overlay */}
+      {/* Heart overlay */}
       <button
         onClick={toggleFavorite}
         aria-label="Toggle favorite"
@@ -58,7 +59,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         />
       </button>
 
-      {/* image area */}
+      {/* Image */}
       <div className={`flex items-center justify-center mb-3 ${compact ? "h-40" : "h-56"}`}>
         {image ? (
           <img
@@ -74,25 +75,38 @@ const ProductCard: React.FC<ProductCardProps> = ({
         )}
       </div>
 
+      {/* Product Info */}
       <h3 className="font-semibold text-base mb-1 line-clamp-2">{name}</h3>
       <p className="text-gray-600 mb-3">${price}</p>
 
+      {/* Actions */}
       <div className="flex items-center gap-2 mt-auto">
-        <Link to={`/product/${product_id}`} className="flex-1">
-          <Button
-            variant="outline"
-            className="w-full flex items-center justify-center gap-2 border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white transition-all font-medium"
+        {quickAdd ? (
+          <button
+            onClick={handleAddToCart}
+            className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-medium"
           >
-            <Eye className="h-4 w-4" /> View
-          </Button>
-        </Link>
+            Quick Add
+          </button>
+        ) : (
+          <>
+            <Link to={`/product/${product_id}`} className="flex-1">
+              <Button
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2 border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white transition-all font-medium"
+              >
+                <Eye className="h-4 w-4" /> View
+              </Button>
+            </Link>
 
-        <Button
-          onClick={handleAddToCart}
-          className="flex-none flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 font-medium"
-        >
-          <ShoppingCart className="h-4 w-4" /> Add to Cart
-        </Button>
+            <Button
+              onClick={handleAddToCart}
+              className="flex-none flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 font-medium"
+            >
+              <ShoppingCart className="h-4 w-4" /> Add to Cart
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );
