@@ -126,7 +126,7 @@ export default function Checkout(): JSX.Element {
                   placeholder="Full name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full mb-3 input"
+                  className="border rounded p-2 w-[600px]"
                 />
 
                 <textarea
@@ -134,7 +134,7 @@ export default function Checkout(): JSX.Element {
                   placeholder="Street, city, state, ZIP"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full mb-3 textarea"
+                  className="border rounded p-2 w-[600px] h-24 mt-3"
                 />
 
                 <h3 className="text-lg font-medium mt-4">Payment</h3>
@@ -160,22 +160,22 @@ export default function Checkout(): JSX.Element {
                 {paymentMethod === "card" && (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <input
-                      placeholder="Card number (demo)"
+                      placeholder="1234 5678 9012 "
                       value={cardNumber}
                       onChange={(e) => setCardNumber(e.target.value)}
-                      className="input"
+                      className="border rounded p-2 w-full"
                     />
                     <input
                       placeholder="MM/YY"
                       value={cardExpiry}
                       onChange={(e) => setCardExpiry(e.target.value)}
-                      className="input"
+                      className="border rounded p-2 flex-1"
                     />
                     <input
                       placeholder="CVC"
                       value={cardCvc}
                       onChange={(e) => setCardCvc(e.target.value)}
-                      className="input"
+                      className="border rounded p-2 flex-1"
                     />
                   </div>
                 )}
@@ -228,8 +228,8 @@ export default function Checkout(): JSX.Element {
             <p className="mt-2 text-sm text-gray-600">{`Your order #${successOrder} was placed. You can view your orders page to see details.`}</p>
 
             <div className="mt-5 flex gap-3">
-              {/* changed to navigate to profile and open orders */}
-              <Button onClick={() => navigate("/profile", { state: { openOrders: true } })}>View Orders</Button>
+              {/* navigate to profile orders tab */}
+              <Button onClick={() => navigate("/profile?tab=orders")}>View Orders</Button>
               <Button variant="ghost" onClick={() => navigate("/")}>Continue Shopping</Button>
             </div>
           </div>

@@ -8,7 +8,7 @@ import { useCart } from "@/components/CartContext";
 export const Navbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { cart } = useCart();
+  const { cart } = useCart(); // ✅ NO clearCart here
   const cartCount = cart.reduce((t, i) => t + (i.quantity || 0), 0);
 
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -30,10 +30,11 @@ export const Navbar: React.FC = () => {
     return () => document.removeEventListener("click", close);
   }, []);
 
+  // ✅ FIXED LOGOUT — DOES NOT CLEAR CART IN DB
   const logout = () => {
-    sessionStorage.removeItem("user_id");
-    sessionStorage.removeItem("username");
-    window.location.href = "/";
+    sessionStorage.clear();
+    window.dispatchEvent(new Event("userChanged"));
+    navigate("/login");
   };
 
   return (
@@ -46,7 +47,9 @@ export const Navbar: React.FC = () => {
             <Link
               key={l.path}
               to={l.path}
-              className={`text-sm font-medium ${isActive(l.path) ? "text-green-600" : "text-gray-700"} hover:text-green-600`}
+              className={`text-sm font-medium ${
+                isActive(l.path) ? "text-green-600" : "text-gray-700"
+              } hover:text-green-600`}
             >
               {l.name}
             </Link>
@@ -54,62 +57,76 @@ export const Navbar: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-3">
-          <Button variant="ghost" size="icon" className="hidden md:flex">
+          {/* Search */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hidden md:flex"
+            onClick={() => navigate("/shop")}
+          >
             <Search className="h-5 w-5" />
           </Button>
 
-          <Link to="/wishlist">
+          {/* Wishlist */}
+          <Link to="/profile?tab=favorites">
             <Button variant="ghost" size="icon">
               <Heart className="h-5 w-5" />
             </Button>
           </Link>
 
+          {/* Cart */}
           <Link to="/cart" className="relative">
             <Button variant="ghost" size="icon">
               <ShoppingCart className="h-5 w-5" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
             </Button>
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
           </Link>
 
-          {/* Profile: only icon, no text */}
+          {/* Profile dropdown */}
           <div className="relative">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setProfileOpen((v) => !v);
               }}
-              aria-haspopup="true"
-              aria-expanded={profileOpen}
               className="p-2 rounded hover:bg-gray-100"
-              title="Account"
             >
               <User className="h-5 w-5" />
             </button>
 
             {profileOpen && (
               <div
-                className="absolute right-0 mt-2 w-44 bg-white border rounded shadow-lg z-50 text-sm"
+                className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-50 text-sm"
                 onClick={(e) => e.stopPropagation()}
               >
-                <button
-                  className="w-full text-left px-4 py-2 hover:bg-gray-50"
-                  onClick={() => {
-                    setProfileOpen(false);
-                    navigate("/profile", { state: { openOrders: true } });
-                  }}
+                <Link
+                  to="/profile?tab=profile"
+                  className="block px-4 py-2 hover:bg-gray-50"
+                >
+                  My Profile
+                </Link>
+                <Link
+                  to="/profile?tab=orders"
+                  className="block px-4 py-2 hover:bg-gray-50"
                 >
                   My Orders
-                </button>
+                </Link>
+                <Link
+                  to="/profile?tab=favorites"
+                  className="block px-4 py-2 hover:bg-gray-50"
+                >
+                  My Wishlist
+                </Link>
 
                 <div className="border-t" />
 
                 <button
                   className="w-full text-left px-4 py-2 hover:bg-gray-50 text-red-600"
-                  onClick={() => { setProfileOpen(false); logout(); }}
+                  onClick={logout}
                 >
                   Logout
                 </button>
@@ -117,13 +134,18 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileOpen((s) => !s)}>
+          {/* Mobile Menu */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setMobileOpen((s) => !s)}
+          >
             <Menu className="h-5 w-5" />
           </Button>
         </div>
       </div>
 
-      {/* Mobile nav */}
       {mobileOpen && (
         <div className="md:hidden border-t bg-white">
           <div className="px-4 py-3 space-y-2">
@@ -131,12 +153,24 @@ export const Navbar: React.FC = () => {
               <Link
                 key={l.path}
                 to={l.path}
-                className={`block text-sm font-medium ${isActive(l.path) ? "text-green-600" : "text-gray-700"}`}
+                className={`block text-sm font-medium ${
+                  isActive(l.path) ? "text-green-600" : "text-gray-700"
+                }`}
                 onClick={() => setMobileOpen(false)}
               >
                 {l.name}
               </Link>
             ))}
+
+            <Link to="/profile?tab=profile" onClick={() => setMobileOpen(false)}>
+              My Profile
+            </Link>
+            <Link to="/profile?tab=orders" onClick={() => setMobileOpen(false)}>
+              My Orders
+            </Link>
+            <Link to="/profile?tab=favorites" onClick={() => setMobileOpen(false)}>
+              My Wishlist
+            </Link>
           </div>
         </div>
       )}

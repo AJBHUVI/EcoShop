@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import { CartProvider } from "@/components/CartContext";
+import {CartProvider}  from "@/components/CartContext";
 import { FavoriteProvider } from "@/components/FavoriteContext";
 import "./index.css";
 

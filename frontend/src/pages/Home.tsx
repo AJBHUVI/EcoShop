@@ -13,7 +13,6 @@ export default function Home() {
     { name: "Zero Waste", icon: "♻️", color: "from-primary/20 to-primary/5" },
   ];
 
-  // NOTE: Use product_id (NUMBER) consistently to match ProductCard prop names
   const trendingProducts = [
     {
       product_id: 1,
@@ -51,36 +50,57 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative h-[90vh] flex items-center justify-center overflow-hidden">
+      {/* Hero Section: shorter height, top-left content */}
+      <section
+        className="relative overflow-hidden"
+        aria-label="Hero"
+      >
+        {/* Background image + subtle dark overlay */}
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroBanner})` }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/30" />
-        </div>
+          style={{ backgroundImage: `url(${heroBanner})`, minHeight: "55vh" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/30" />
 
-        <div className="relative z-10 container mx-auto px-4 text-center text-white animate-fade-in">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in-up">
-            Shop Sustainably,
-            <br />
-            Live Responsibly
-          </h1>
-          <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-            Discover eco-friendly products that make a difference for you and the planet
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
-            <Link to="/shop">
-              <Button size="lg" className="text-lg px-8">
-                Shop Now
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <Link to="/sustainability">
-              <Button size="lg" variant="outline" className="text-lg px-8 bg-white/10 backdrop-blur-sm border-white text-white hover:bg-white hover:text-foreground">
-                Our Impact
-              </Button>
-            </Link>
+        {/* Content container - positioned top-left and limited width for readability */}
+        <div className="relative z-10 container mx-auto px-4">
+          <div className="flex items-start pt-12 lg:pt-16 h-[55vh] lg:h-[60vh]">
+            <div className="w-full lg:w-1/2 flex items-start">
+              <div className="max-w-lg bg-white/5 backdrop-blur-sm rounded-2xl p-6 md:p-8 lg:p-10 shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-extrabold leading-tight text-white">
+                  Shop Sustainably,
+                  <br />
+                  Live Responsibly
+                </h1>
+
+                <p className="mt-4 text-sm sm:text-base text-gray-100/90 leading-relaxed">
+                  Discover eco-friendly products that make a difference — thoughtfully
+                  made, beautifully designed, and better for the planet.
+                </p>
+
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Link to="/shop" aria-label="Shop Now">
+                    <Button size="lg" className="text-lg px-6 py-2.5 inline-flex items-center gap-2 rounded-full">
+                      Shop Now
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Link>
+
+                  <Link to="/sustainability" aria-label="Our Impact">
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="text-lg px-6 py-2.5 inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm border-white text-white hover:bg-white hover:text-foreground"
+                    >
+                      Our Impact
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* right side left empty intentionally so image is visible */}
+            <div className="hidden lg:block lg:w-1/2" />
           </div>
         </div>
       </section>
@@ -128,7 +148,6 @@ export default function Home() {
               className="animate-fade-in"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              {/* Pass explicit product_id (number) to ProductCard */}
               <ProductCard
                 product_id={Number(product.product_id)}
                 name={product.name}

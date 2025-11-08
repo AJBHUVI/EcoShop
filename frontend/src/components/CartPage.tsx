@@ -1,70 +1,79 @@
-// src/pages/CartPage.tsx
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { useCart } from "@/components/CartContext";
 import { Button } from "@/components/ui/button";
 
-const CartPage: React.FC = () => {
-  const navigate = useNavigate();
-  const { cart, updateQuantity, removeFromCart } = useCart();
+export default function CartPage() {
+  const { cart, removeFromCart, clearCart } = useCart();
 
-  const subtotal = cart.reduce((total, item) => total + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
-  const shipping = cart.length > 0 ? 10 : 0;
-  const total = subtotal + shipping;
-
-  const handleProceedToCheckout = () => {
-    navigate("/checkout");
-  };
+  const total = cart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
   return (
-    <div className="flex justify-between p-8">
-      <div className="w-2/3">
-        {cart.length === 0 ? (
-          <p>Your cart is empty.</p>
-        ) : (
-          cart.map((item, idx) => (
-            <div key={`${item.product_id ?? "p"}-${idx}`} className="flex items-center justify-between mb-6">
-              {item.image ? <img src={item.image} alt={item.name} className="w-24 h-24 object-cover rounded" /> : null}
-              <div className="flex-1 ml-4">
-                <h3 className="font-semibold">{item.name}</h3>
-                <p>${(Number(item.price) || 0).toFixed(2)}</p>
-                <div className="flex items-center mt-2">
-                  <button
-                    onClick={() => updateQuantity(item.product_id, -1)}
-                    aria-label={`Decrease quantity of ${item.name}`}
-                    className="px-2 py-1 border rounded"
-                  >
-                    -
-                  </button>
-                  <span className="mx-3">{item.quantity}</span>
-                  <button
-                    onClick={() => updateQuantity(item.product_id, 1)}
-                    aria-label={`Increase quantity of ${item.name}`}
-                    className="px-2 py-1 border rounded"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-              <Button variant="destructive" onClick={() => removeFromCart(item.product_id)}>
-                Remove
-              </Button>
-            </div>
-          ))
-        )}
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-6 py-12 max-w-3xl">
+        <h1 className="text-3xl font-bold mb-8">Your Cart</h1>
 
-      <div className="w-1/3 p-6 bg-white shadow rounded-xl">
-        <h2 className="font-bold mb-4 text-lg">Order Summary</h2>
-        <p>Subtotal: ${subtotal.toFixed(2)}</p>
-        <p>Shipping: ${shipping.toFixed(2)}</p>
-        <p className="font-bold text-green-600 mt-2">Total: ${total.toFixed(2)}</p>
-        <Button className="mt-4 w-full" onClick={handleProceedToCheckout}>
-          Proceed to Checkout
-        </Button>
+        {cart.length === 0 ? (
+          <p className="text-gray-600 text-lg">Your cart is empty.</p>
+        ) : (
+          <div className="space-y-6">
+            {cart.map((item) => (
+              <div
+                key={item.product_id}
+                className="flex items-center justify-between p-4 border rounded-lg bg-white shadow-sm"
+              >
+                <div className="flex items-center gap-4">
+                  {item.image && (
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-20 h-20 rounded object-cover"
+                    />
+                  )}
+                  <div>
+                    <h3 className="font-semibold text-lg">{item.name}</h3>
+                    <p className="text-gray-500">
+                      {item.quantity} × ₹{item.price}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => removeFromCart(item.product_id)}
+                  className="text-red-600 hover:underline"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+
+            <div className="flex justify-between items-center mt-6">
+              <h2 className="text-xl font-semibold">
+                Total: ₹{total.toFixed(2)}
+              </h2>
+
+              <div className="flex gap-4">
+                <Button
+                  variant="outline"
+                  onClick={clearCart}
+                  className="px-6"
+                >
+                  Clear Cart
+                </Button>
+
+                <Button
+                  className="px-6 bg-green-600 text-white"
+                  onClick={() => (window.location.href = "/checkout")}
+                >
+                  Checkout
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
-};
-
-export default CartPage;
+}

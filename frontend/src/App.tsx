@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
-import { CartProvider } from "./components/CartContext"; // ✅ Add this line
+import {CartProvider}  from "./components/CartContext"; // ✅ Add this line
 import CartDrawer from "./components/CartDrawer";
 import CartPage from "./components/CartPage";
 //import Orders from "./components/Orders";

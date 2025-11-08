@@ -1,3 +1,4 @@
+// src/pages/Wishlist.tsx
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -8,23 +9,25 @@ export default function Wishlist() {
 
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto px-4 py-12">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">My Wishlist ❤️</h1>
+      <div className="container mx-auto px-4 py-6">
+        <div className="mb-6">
+          <h1 className="text-4xl font-bold mb-2">My Wishlist ❤️</h1>
           <p className="text-muted-foreground text-lg">
             Save your favorite products for later
           </p>
         </div>
 
         {favorites.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          // Use a responsive compact grid. Each cell centers the card.
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
             {favorites.map((product, index) => (
-              <div
-                key={product.product_id}
-                className="animate-fade-in"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <ProductCard {...product} />
+              <div key={product.product_id} className="flex justify-start">
+                {/* Pass compact to keep consistent card width/height */}
+                <ProductCard
+                  {...product}
+                  product_id={Number(product.product_id)}
+                  compact
+                />
               </div>
             ))}
           </div>
@@ -42,4 +45,3 @@ export default function Wishlist() {
     </div>
   );
 }
- 
