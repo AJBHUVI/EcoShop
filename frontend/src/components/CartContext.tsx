@@ -15,6 +15,7 @@ interface CartContextType {
   removeFromCart: (product_id: number) => void;
   clearCart: () => void;
   updateQuantity: (product_id: number, delta: number) => void;
+  removeMultiple: (productIds: number[]) => void;   // ✅ NEW
   isCartOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
@@ -76,7 +77,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return [...prev, item];
     });
 
-    setIsCartOpen(true); // auto open drawer
+    setIsCartOpen(true);
 
     try {
       await axios.post("/cart/add", {
@@ -99,6 +100,24 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       await axios.delete(`/cart/${userId}/${product_id}`);
     } catch (err) {
       console.error("❌ Error removing from cart:", err);
+    }
+  };
+
+  // ✅ NEW: Remove multiple selected items
+  const removeMultiple = async (productIds: number[]) => {
+    const userId = getUserId();
+    if (!userId) return;
+
+    // ✅ Remove selected items UI
+    setCart((prev) => prev.filter((item) => !productIds.includes(item.product_id)));
+
+    try {
+      // ✅ Remove from backend
+      for (const pid of productIds) {
+        await axios.delete(`/cart/${userId}/${pid}`);
+      }
+    } catch (err) {
+      console.error("❌ Error removing multiple items:", err);
     }
   };
 
@@ -127,6 +146,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     if (!userId) return;
 
     const item = cart.find((i) => i.product_id === product_id);
+
     try {
       await axios.post("/cart/update", {
         user_id: userId,
@@ -146,6 +166,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         removeFromCart,
         clearCart,
         updateQuantity,
+        removeMultiple,   // ✅ Added
         isCartOpen,
         openCart,
         closeCart,

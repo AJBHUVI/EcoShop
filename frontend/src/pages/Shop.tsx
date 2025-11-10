@@ -31,7 +31,7 @@ export default function Shop() {
     setSearchQuery(q);
   }, [q]);
 
-  // Fetch products from backend
+  // Fetch dynamic products
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -65,6 +65,7 @@ export default function Shop() {
     { product_id: 16, name: "Shirt", price: 450, image: "/images/shirts.webp", category: "Clothing", rating: 4.8 },
   ];
 
+  // Merge static + db
   const allProducts: Product[] = [
     ...staticProducts,
     ...dbProducts.filter((db) => !staticProducts.some((sp) => sp.product_id === db.product_id)),
@@ -72,7 +73,7 @@ export default function Shop() {
 
   const categories = ["All", ...Array.from(new Set(allProducts.map((p) => p.category)))];
 
-  // Filter products by search & category
+  // Filter search + categories
   const filteredProducts = useMemo(() => {
     const sq = (searchQuery || "").trim().toLowerCase();
     return allProducts.filter((product) => {
@@ -81,7 +82,7 @@ export default function Shop() {
         !sq ||
         product.name.toLowerCase().includes(sq) ||
         product.category.toLowerCase().includes(sq) ||
-        (product.product_id && String(product.product_id).includes(sq));
+        String(product.product_id).includes(sq);
       return matchesCategory && matchesSearch;
     });
   }, [allProducts, selectedCategory, searchQuery]);
@@ -97,10 +98,10 @@ export default function Shop() {
           </p>
         </div>
 
-        {/* Search and Filters */}
+        {/* Search Bar */}
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search products..."
               value={searchQuery}
@@ -108,13 +109,14 @@ export default function Shop() {
               className="pl-10"
             />
           </div>
+
           <Button variant="outline" className="w-full md:w-auto">
             <SlidersHorizontal className="h-4 w-4 mr-2" />
             Filters
           </Button>
         </div>
 
-        {/* Category Buttons */}
+        {/* Categories */}
         <div className="flex flex-wrap gap-3 mb-10">
           {categories.map((cat) => (
             <Button
@@ -128,7 +130,7 @@ export default function Shop() {
           ))}
         </div>
 
-        {/* Products Grid */}
+        {/* Product Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredProducts.map((product, index) => (
             <div
@@ -136,16 +138,14 @@ export default function Shop() {
               className="animate-fade-in"
               style={{ animationDelay: `${index * 0.05}s` }}
             >
-              <ProductCard {...product} quickAdd /> {/* ✅ QuickAdd fixed */}
+              <ProductCard {...product} />
             </div>
           ))}
         </div>
 
         {filteredProducts.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">
-              No products found{q ? ` for "${q}"` : ""}.
-            </p>
+            <p className="text-muted-foreground text-lg">No products found</p>
           </div>
         )}
       </div>

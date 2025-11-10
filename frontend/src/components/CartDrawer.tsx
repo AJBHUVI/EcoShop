@@ -2,10 +2,19 @@ import React from "react";
 import { useCart } from "./CartContext";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 export default function CartDrawer() {
   const { cart, isCartOpen, closeCart, removeFromCart, clearCart, updateQuantity } =
     useCart();
+
+  const navigate = useNavigate();
+
+  // ✅ Checkout Handler
+  const handleCheckout = () => {
+    closeCart(); // close the drawer
+    navigate("/checkout"); // go to checkout page
+  };
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -34,9 +43,11 @@ export default function CartDrawer() {
                 alt={item.name}
                 className="w-16 h-16 object-cover rounded-lg"
               />
+
               <div className="flex-1">
                 <h3 className="font-medium">{item.name}</h3>
                 <p className="text-gray-500">${item.price}</p>
+
                 <div className="flex gap-2 mt-1">
                   <Button
                     variant="outline"
@@ -45,7 +56,9 @@ export default function CartDrawer() {
                   >
                     -
                   </Button>
+
                   <span className="px-2">{item.quantity}</span>
+
                   <Button
                     variant="outline"
                     size="sm"
@@ -53,6 +66,7 @@ export default function CartDrawer() {
                   >
                     +
                   </Button>
+
                   <Button
                     variant="destructive"
                     size="sm"
@@ -70,11 +84,16 @@ export default function CartDrawer() {
       {cart.length > 0 && (
         <div className="p-4 border-t">
           <p className="text-lg font-bold mb-4">Total: ${total.toFixed(2)}</p>
-          <Button className="w-full mb-2">Checkout</Button>
+
+          {/* ✅ FIXED BUTTON */}
+          <Button className="w-full mb-2 bg-green-600" onClick={handleCheckout}>
+            Checkout
+          </Button>
+
           <Button
             variant="outline"
             className="w-full"
-            onClick={() => clearCart()}
+            onClick={clearCart}
           >
             Clear Cart
           </Button>

@@ -128,6 +128,7 @@ export default function Home() {
               style={{ animationDelay: `${index * 0.15}s` }}
             >
               <ProductCard {...product} />
+              
             </div>
           ))}
         </div>

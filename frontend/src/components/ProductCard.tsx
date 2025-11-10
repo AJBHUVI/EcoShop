@@ -14,7 +14,7 @@ interface ProductCardProps {
   category?: string;
   rating?: number;
   compact?: boolean;
-  quickAdd?: boolean; // ✅ Added for Shop page
+  quickAdd?: boolean; // Optional – used only if required
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -25,7 +25,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   category,
   rating,
   compact = false,
-  quickAdd = false,
+  quickAdd = false, // Default false (so View button shows normally)
 }) => {
   const { addToCart } = useCart();
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
@@ -41,12 +41,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <div
-      className={`relative bg-white rounded-xl shadow-md p-3 flex flex-col transition hover:shadow-lg hover:-translate-y-1 duration-200 ${
-        compact ? "max-w-[220px]" : "w-full"
-      }`}
+      className={`
+        relative bg-white rounded-xl shadow-md p-3 flex flex-col 
+        transition hover:shadow-lg hover:-translate-y-1 duration-200
+        ${compact ? "max-w-[220px]" : "w-full"}
+      `}
       role="article"
     >
-      {/* Heart overlay */}
+      {/* ❤️ Favorite Button */}
       <button
         onClick={toggleFavorite}
         aria-label="Toggle favorite"
@@ -55,18 +57,21 @@ const ProductCard: React.FC<ProductCardProps> = ({
       >
         <HeartIcon
           size={18}
-          className={isFavorite(product_id) ? "text-red-500 fill-red-500" : "text-gray-400"}
+          className={
+            isFavorite(product_id)
+              ? "text-red-500 fill-red-500"
+              : "text-gray-400"
+          }
         />
       </button>
 
-      {/* Image */}
+      {/* 🖼 Product Image */}
       <div className={`flex items-center justify-center mb-3 ${compact ? "h-40" : "h-56"}`}>
         {image ? (
           <img
             src={image}
             alt={name}
             className="max-h-full object-contain w-full rounded-md"
-            style={{ display: "block" }}
           />
         ) : (
           <div className="w-full h-full bg-gray-100 rounded-md flex items-center justify-center text-sm text-gray-500">
@@ -75,13 +80,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
         )}
       </div>
 
-      {/* Product Info */}
+      {/* 📄 Product Info */}
       <h3 className="font-semibold text-base mb-1 line-clamp-2">{name}</h3>
       <p className="text-gray-600 mb-3">${price}</p>
 
-      {/* Actions */}
+      {/* ✅ Action Buttons */}
       <div className="flex items-center gap-2 mt-auto">
         {quickAdd ? (
+          // ✅ QuickAdd if you ever want it again
           <button
             onClick={handleAddToCart}
             className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-medium"
@@ -89,11 +95,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
             Quick Add
           </button>
         ) : (
+          // ✅ Default (View + Add to Cart)
           <>
             <Link to={`/product/${product_id}`} className="flex-1">
               <Button
                 variant="outline"
-                className="w-full flex items-center justify-center gap-2 border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white transition-all font-medium"
+                className="w-full flex items-center justify-center gap-2 
+                border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white 
+                transition-all font-medium"
               >
                 <Eye className="h-4 w-4" /> View
               </Button>
@@ -101,9 +110,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
             <Button
               onClick={handleAddToCart}
-              className="flex-none flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 font-medium"
+              className="flex-none flex items-center justify-center gap-2 
+              bg-green-500 hover:bg-green-600 font-medium"
             >
-              <ShoppingCart className="h-4 w-4" /> Add to Cart
+              <ShoppingCart className="h-4 w-4" /> Add to cart
             </Button>
           </>
         )}

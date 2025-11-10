@@ -142,3 +142,71 @@ All colors MUST be HSL.
   }
 }
 
+/* Fade In */
+.animate-fade-in {
+  opacity: 0;
+  animation: fadeIn 0.9s forwards;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+/* Slide Up */
+.animate-slide-up {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: slideUp 0.8s forwards;
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Parallax hero */
+.hero-bg {
+  transform: scale(1.1);
+  animation: slowZoom 18s ease-in-out infinite alternate;
+}
+
+@keyframes slowZoom {
+  0% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Scroll Reveal */
+.reveal-section {
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.show-section {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* Stagger Items */
+.animate-item {
+  opacity: 0;
+  animation: fadeUp 0.8s forwards;
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pop Animation */
+.animate-pop {
+  animation: pop 0.4s ease-out;
+}
+
+@keyframes pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
