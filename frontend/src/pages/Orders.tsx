@@ -121,11 +121,11 @@ export default function Orders(): JSX.Element {
 
   const downloadOrderCSV = (o: Order) => {
     const rows: string[][] = [
-      ["Order ID", "Order Date", "Customer", "Status", "Total"],
-      [String(o.order_id), String(o.created_at ?? ""), String(o.username ?? ""), String(o.status ?? ""), String(o.total ?? "")],
+      [ "Order Date", "Customer", "Status", "Total"],
+      [String(o.created_at ?? ""), String(o.username ?? ""), String(o.status ?? ""), String(o.total ?? "")],
       [],
-      ["Product ID", "Name", "Unit Price", "Qty", "Line Total"],
-      ...o.items.map((it) => [String(it.product_id ?? ""), String(it.name ?? ""), String(it.price ?? ""), String(it.quantity ?? ""), String(it.line_total ?? "")]),
+      [ "Name", "Unit Price", "Qty", "Line Total"],
+      ...o.items.map((it) => [ String(it.name ?? ""), String(it.price ?? ""), String(it.quantity ?? ""), String(it.line_total ?? "")]),
     ];
     const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -233,3 +233,4 @@ export default function Orders(): JSX.Element {
     </div>
   );
 }
+

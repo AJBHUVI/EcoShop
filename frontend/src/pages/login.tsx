@@ -19,19 +19,25 @@ const Login: React.FC = () => {
       if (data.success) {
         const user = data.user;
 
+        // 🧠 Save user data in sessionStorage
         sessionStorage.setItem("user", JSON.stringify(user));
         sessionStorage.setItem("user_id", user.user_id);
         sessionStorage.setItem("user_email", user.email);
         sessionStorage.setItem("username", user.name);
         sessionStorage.setItem("is_admin", user.is_admin);
 
-        // ✅ IMPORTANT: refresh cart for this user
+        // Refresh cart (optional event trigger)
         window.dispatchEvent(new Event("userChanged"));
 
         toast.success(`Welcome ${user.name}!`, { duration: 1500 });
 
+        // ✅ Redirect based on role
         setTimeout(() => {
-          navigate("/home");
+          if (user.is_admin === 0) {
+            navigate("/dashboard");
+          } else {
+            navigate("/home");
+          }
         }, 1200);
       } else {
         toast.error("Invalid email or password!");
@@ -50,46 +56,45 @@ const Login: React.FC = () => {
           Login
         </h2>
 
-       <form onSubmit={handleLogin} autoComplete="off">
-  <div className="mb-4">
-    <label className="block text-gray-700 mb-1">Email</label>
-    <input
-      type="email"
-      name="email"
-      placeholder="Enter email"
-      autoComplete="username"   // ✅ correct spec value for emails
-      value={email}
-      onChange={(e) => setEmail(e.target.value)}
-      className="w-full border border-gray-300 p-2 rounded"
-      required
-    />
-  </div>
+        <form onSubmit={handleLogin} autoComplete="off">
+          <div className="mb-4">
+            <label className="block text-gray-700 mb-1">Email</label>
+            <input
+              type="email"
+              name="email"
+              placeholder="Enter email"
+              autoComplete="username"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full border border-gray-300 p-2 rounded"
+              required
+            />
+          </div>
 
-  <div className="mb-4">
-    <label className="block text-gray-700 mb-1">Password</label>
-    <input
-      type="password"
-      name="password"
-      placeholder="Enter password"
-      autoComplete="new-password"   // ✅ prevents autofill properly
-      value={password}
-      onChange={(e) => setPassword(e.target.value)}
-      className="w-full border border-gray-300 p-2 rounded"
-      required
-    />
-  </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 mb-1">Password</label>
+            <input
+              type="password"
+              name="password"
+              placeholder="Enter password"
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full border border-gray-300 p-2 rounded"
+              required
+            />
+          </div>
 
-  <button
-    type="submit"
-    className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
-  >
-    Login
-  </button>
-</form>
-
+          <button
+            type="submit"
+            className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
+          >
+            Login
+          </button>
+        </form>
 
         <p className="text-center text-sm mt-4">
-          Don't have an account?{" "}
+          Don’t have an account?{" "}
           <Link to="/signup" className="text-green-600 hover:underline">
             Signup here
           </Link>

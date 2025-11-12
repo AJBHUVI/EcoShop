@@ -3,85 +3,65 @@ import db from "../config/db.js";
 
 const router = express.Router();
 
-// 📦 POST /orders — Place a new order
 router.post("/", async (req, res) => {
-  const {
-    user_id,
-    items,
-    subtotal = 0,
-    shipping = 0,
-    total = 0,
-    shipping_address = "",
-    customer_name = "",
-    payment_method = "card",
-    payment_details = null,
-  } = req.body;
-
-  if (!user_id || !items || !Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({ message: "Invalid request" });
-  }
-
   try {
-    const total_amount =
-      typeof total === "number" && total > 0
-        ? total
-        : items.reduce(
-            (sum, item) =>
-              sum + Number(item.price || 0) * Number(item.quantity || 0),
-            0
-          ) + Number(shipping || 0);
+    const { user_id, items, shipping_address, customer_name, payment_method } = req.body;
+
+    if (!user_id || !items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: "Invalid order data" });
+    }
+
+    // ✅ same logic as frontend
+    const subtotal = items.reduce(
+      (sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 1),
+      0
+    );
+    const shipping = 40;
+    const tax = subtotal * 0.05;
+    const total = subtotal + shipping + tax;
 
     const productsJSON = JSON.stringify(items);
-    const paymentJSON = payment_details ? JSON.stringify(payment_details) : null;
 
     const sql = `
       INSERT INTO orders (
-        user_id, products, total_amount, shipping, payment_method, payment_details,
-        status, order_date, shipping_address, customer_name
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?)
+        user_id, customer_name, shipping_address, products,
+        subtotal, shipping, tax, total_amount, payment_method,
+        status, order_date
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'submitted', NOW())
     `;
-    const params = [
-      user_id,
-      productsJSON,
-      total_amount,
-      shipping,
-      payment_method,
-      paymentJSON,
-      "submitted",
-      shipping_address,
-      customer_name,
-    ];
 
-    const [result] = await db.query(sql, params);
-    const order_id = result.insertId;
+    const [result] = await db.query(sql, [
+      user_id,
+      customer_name,
+      shipping_address,
+      productsJSON,
+      subtotal,
+      shipping,
+      tax,
+      total,
+      payment_method,
+    ]);
 
     const [rows] = await db.query("SELECT * FROM orders WHERE order_id = ?", [
-      order_id,
+      result.insertId,
     ]);
-    const createdOrder = rows[0];
+    const order = rows[0];
 
-    if (createdOrder && typeof createdOrder.products === "string") {
-      createdOrder.products = JSON.parse(createdOrder.products);
-    }
-    if (createdOrder && typeof createdOrder.payment_details === "string") {
+    if (typeof order.products === "string") {
       try {
-        createdOrder.payment_details = JSON.parse(createdOrder.payment_details);
+        order.products = JSON.parse(order.products);
       } catch {
-        createdOrder.payment_details = null;
+        order.products = [];
       }
     }
 
-    res.status(201).json({
-      message: "Order placed successfully",
-      order: createdOrder,
-    });
+    res.status(201).json({ message: "Order placed successfully", order });
   } catch (err) {
     console.error("❌ Failed to place order:", err);
     res.status(500).json({ message: "Failed to place order" });
   }
 });
 
-// 🧾 GET /orders — Fetch all orders (for admin dashboard)
 router.get("/", async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM orders ORDER BY order_date DESC");
@@ -89,38 +69,40 @@ router.get("/", async (req, res) => {
       ...row,
       products:
         typeof row.products === "string"
-          ? JSON.parse(row.products)
+          ? (() => {
+              try {
+                return JSON.parse(row.products);
+              } catch {
+                return [];
+              }
+            })()
           : row.products,
-      payment_details:
-        typeof row.payment_details === "string"
-          ? JSON.parse(row.payment_details)
-          : row.payment_details,
     }));
     res.json(orders);
   } catch (err) {
-    console.error("❌ Failed to fetch all orders:", err);
-    res.status(500).json({ message: "Failed to fetch all orders" });
+    console.error("❌ Failed to fetch orders:", err);
+    res.status(500).json({ message: "Failed to fetch orders" });
   }
 });
 
-// 🧾 GET /orders/:user_id — Fetch orders for a specific user
 router.get("/:user_id", async (req, res) => {
-  const { user_id } = req.params;
   try {
     const [rows] = await db.query(
       "SELECT * FROM orders WHERE user_id = ? ORDER BY order_date DESC",
-      [user_id]
+      [req.params.user_id]
     );
     const orders = rows.map((row) => ({
       ...row,
       products:
         typeof row.products === "string"
-          ? JSON.parse(row.products)
+          ? (() => {
+              try {
+                return JSON.parse(row.products);
+              } catch {
+                return [];
+              }
+            })()
           : row.products,
-      payment_details:
-        typeof row.payment_details === "string"
-          ? JSON.parse(row.payment_details)
-          : row.payment_details,
     }));
     res.json(orders);
   } catch (err) {

@@ -6,20 +6,20 @@ import { Trash2, Plus, Minus } from "lucide-react";
 export default function Cart() {
   // Mock cart data
   const cartItems = [
-    {
-      product_id: 1,
-      name: "Organic Cotton T-Shirt",
-      price: 45,
-      quantity: 2,
-      image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200&auto=format&fit=crop",
-    },
-    {
-      product_id: 2,
-      name: "Bamboo Sunglasses",
-      price: 89,
-      quantity: 1,
-      image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=200&auto=format&fit=crop",
-    },
+    // {
+    //   product_id: 1,
+    //   name: "Organic Cotton T-Shirt",
+    //   price: 45,
+    //   quantity: 2,
+    //   image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200&auto=format&fit=crop",
+    // },
+    // {
+    //   product_id: 2,
+    //   name: "Bamboo Sunglasses",
+    //   price: 89,
+    //   quantity: 1,
+    //   image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=200&auto=format&fit=crop",
+    // },
   ];
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);

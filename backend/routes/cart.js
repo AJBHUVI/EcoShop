@@ -18,7 +18,7 @@ router.post("/add", async (req, res) => {
       [user_id, product_id]
     );
 
-    if (rows.length) {
+    if (rows.length>0) {
       await db.query(
         "UPDATE cart_items SET quantity = quantity + ? WHERE user_id = ? AND product_id = ?",
         [quantity, user_id, product_id]

@@ -8,20 +8,6 @@ import { useEffect } from "react";
 
 export default function Home() {
 
-  // ✅ Add scroll animations
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) entry.target.classList.add("show-section");
-        });
-      },
-      { threshold: 0.2 }
-    );
-
-    document.querySelectorAll(".reveal-section").forEach((el) => observer.observe(el));
-  }, []);
-
   const trendingProducts = [
     {
       product_id: 1,
@@ -58,34 +44,33 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div>
 
       {/* ✅ HERO SECTION with parallax & fade */}
-      <section className="relative overflow-hidden hero-section">
-        <div
-          className="absolute inset-0 bg-cover bg-center hero-bg"
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0  bg-center hero-bg"
           style={{ backgroundImage: `url(${heroBanner})`, minHeight: "60vh" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/30" />
+        {/* <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/30" /> */}
 
-        <div className="relative z-10 container mx-auto px-4">
+        <div className="container">
           <div className="flex items-start pt-16 h-[60vh]">
-            <div className="w-full lg:w-1/2">
-              <div className="max-w-lg bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-2xl animate-slide-up">
-                <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight animate-fade-in">
-                  Shop Sustainably,
+            {/* <div className=""> */}
+              <div className="max-w-lg bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-2xl">
+                <h1 className="md:text-5xl font-extrabold text-white">
+                  Shop Sustainably
                   <br />Live Responsibly
                 </h1>
 
-                <p className="mt-4 text-gray-100/90 text-base leading-relaxed animate-fade-in" style={{ animationDelay: "0.3s" }}>
+                <p className="mt-4 text-black-100/90 text-base leading-relaxed animate-fade-in" style={{ animationDelay: "0.3s" }}>
                   Discover eco-friendly products that make a difference —
                   thoughtfully made, beautifully designed, and better for the planet.
                 </p>
 
-                <div className="mt-6 flex gap-4 animate-fade-in" style={{ animationDelay: "0.5s" }}>
+                <div className="mt-6 flex gap-4" style={{ animationDelay: "0.5s" }}>
                   <Link to="/shop">
-                    <Button size="lg" className="rounded-full text-lg flex items-center gap-2 hover:scale-105 transition">
-                      Shop Now <ArrowRight className="h-5 w-5" />
+                    <Button size="lg" className="rounded-full text-lg hover:scale-105 transition">
+                      Shop Now 
                     </Button>
                   </Link>
 
@@ -93,29 +78,28 @@ export default function Home() {
                     <Button
                       size="lg"
                       variant="outline"
-                      className="rounded-full text-lg px-6 border-white text-white hover:bg-white hover:text-foreground transition"
-                    >
+                      className="rounded-full text-lg px-6 text-white hover:bg-white hover:text-foreground transition" >
                       Our Impact
                     </Button>
                   </Link>
-                </div>
+                
               </div>
             </div>
 
-            <div className="hidden lg:block lg:w-1/2"></div>
+            {/* <div className=""></div> */}
           </div>
         </div>
       </section>
 
       {/* ✅ TRENDING PRODUCTS with animation */}
-      <section className="container mx-auto px-4 py-20 reveal-section opacity-0 translate-y-8 transition-all duration-700">
+      <section className="container px-4 py-10 reveal-section">
         <div className="flex items-center justify-between mb-12">
           <h2 className="text-3xl md:text-4xl font-bold animate-slide-up">Trending for Yours</h2>
 
           <Link to="/shop">
-            <Button variant="ghost" className="group hover:bg-primary/10">
+            <Button variant="ghost" className=" hover:bg-primary/10">
               View All
-              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="" />
             </Button>
           </Link>
         </div>
@@ -135,9 +119,9 @@ export default function Home() {
       </section>
 
       {/* ✅ VALUES SECTION with stagger reveal */}
-      <section className="bg-muted/50 py-20 reveal-section opacity-0 translate-y-8 transition-all duration-700">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+      <section className="bg-muted/50 py-20">
+        <div className="container">
+          <h2 className="md:text-4xl font-bold text-center mb-12">
             Why Choose EcoShop?
           </h2>
 
@@ -164,7 +148,7 @@ export default function Home() {
                 className="text-center p-6 animate-item"
                 style={{ animationDelay: `${index * 0.2}s` }}
               >
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4 animate-pop">
+                <div className="justify-center inline-flex items-center w-16 h-16 rounded-full bg-primary/10 mb-4">
                   {value.icon}
                 </div>
                 <h3 className="text-xl font-semibold mb-2">{value.title}</h3>

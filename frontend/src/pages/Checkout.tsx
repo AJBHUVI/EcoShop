@@ -1,4 +1,3 @@
-// ✅ short & optimized Checkout.tsx
 import { useState, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -11,37 +10,33 @@ export default function Checkout() {
   const navigate = useNavigate();
   const { state } = useLocation();
 
-  // ✅ only selected items OR whole cart
+  // ✅ Only selected items OR full cart
   const cart = state?.items ?? fullCart;
 
-  // ✅ form state
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [method, setMethod] = useState<"card" | "cod">("card");
   const [card, setCard] = useState({ num: "", exp: "", cvc: "" });
-
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [orderId, setOrderId] = useState<number | null>(null);
 
-  // ✅ totals
+  // ✅ Totals (same logic as backend)
+  const shipping = 40;
   const subtotal = useMemo(
     () => cart.reduce((s, i) => s + i.price * i.quantity, 0),
     [cart]
   );
-  const shipping = 10;
-  const total = subtotal + shipping;
+  const tax = subtotal * 0.05;
+  const total = subtotal + shipping + tax;
 
-  const fmt = (n: number) => `$${n.toFixed(2)}`;
+  const fmt = (n: number) => `₹${n.toFixed(2)}`;
 
-  // ✅ place order
+  // ✅ Place Order
   const placeOrder = async () => {
-    if (!name.trim() || !address.trim()) {
-      return setError("Enter name & address");
-    }
-    if (method === "card" && card.num.replace(/\D/g, "").length < 12) {
+    if (!name.trim() || !address.trim()) return setError("Enter name & address");
+    if (method === "card" && card.num.replace(/\D/g, "").length < 12)
       return setError("Invalid card");
-    }
 
     const user_id = sessionStorage.getItem("user_id");
     if (!user_id) return setError("Login required");
@@ -50,17 +45,10 @@ export default function Checkout() {
     try {
       const payload = {
         user_id,
-        items: cart,
-        subtotal,
-        shipping,
-        total,
-        shipping_address: address,
+        items: cart, // ✅ only send array (not stringified)
         customer_name: name,
+        shipping_address: address,
         payment_method: method,
-        payment_details:
-          method === "card"
-            ? { last4: card.num.slice(-4), expiry: card.exp }
-            : { note: "Cash on Delivery" },
       };
 
       const { data } = await axios.post("/orders", payload);
@@ -68,7 +56,7 @@ export default function Checkout() {
       setOrderId(data.order?.order_id);
       setError("");
 
-      // ✅ remove only selected items
+      // ✅ remove ordered items
       if (state?.items) {
         const ids = cart.map((i) => i.product_id);
         removeMultiple(ids);
@@ -198,12 +186,21 @@ export default function Checkout() {
             <span>{fmt(shipping)}</span>
           </div>
 
+          <div className="flex justify-between text-sm">
+            <span>Tax (5%)</span>
+            <span>{fmt(tax)}</span>
+          </div>
+
           <div className="flex justify-between font-bold text-green-600 text-lg">
             <span>Total</span>
             <span>{fmt(total)}</span>
           </div>
 
-          <Button className="w-full mt-4" onClick={placeOrder} disabled={loading}>
+          <Button
+            className="w-full mt-4"
+            onClick={placeOrder}
+            disabled={loading}
+          >
             {loading ? "Placing..." : "Place Order"}
           </Button>
         </Card>

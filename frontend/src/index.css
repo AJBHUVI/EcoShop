@@ -178,7 +178,7 @@ All colors MUST be HSL.
 }
 
 /* Scroll Reveal */
-.reveal-section {
+/* .reveal-section {
   opacity: 0;
   transform: translateY(40px);
 }
@@ -186,7 +186,7 @@ All colors MUST be HSL.
 .show-section {
   opacity: 1 !important;
   transform: translateY(0) !important;
-}
+} */
 
 /* Stagger Items */
 .animate-item {

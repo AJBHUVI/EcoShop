@@ -48,24 +48,7 @@ export default function ProductDetail() {
         alert("Please log in to add items to the cart.");
         return;
       }
-
-      // POST to your backend route (relative path) — ensure your server mounts router at /cart
-      const res = await fetch("/cart/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id,
-          product_id: product.product_id,
-          quantity,
-        }),
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        console.error("Backend responded with error:", res.status, text);
-        throw new Error("Failed to save cart item on server");
-      }
-
+      
       // Update local UI cart (CartContext) after successful DB insert
       addToCart({ ...product, quantity });
       openCart();
