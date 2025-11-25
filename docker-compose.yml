@@ -1,0 +1,43 @@
+services:
+  mysql_db:
+    image: mysql:8.0.43
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: ecoshop
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build: ./backend
+    container_name: ecoshop-backend
+    ports:
+      - "5002:5002"
+    environment:
+      DB_HOST: mysql_db
+      DB_USER: root
+      DB_PASSWORD: rootpass
+      DB_NAME: ecoshop
+    depends_on:
+      - mysql_db
+    volumes:
+      - ./backend:/app       # Optional: live reload backend
+    command: npx nodemon server.js   # Auto-restart backend on code changes
+
+  frontend:
+    build: ./frontend
+    container_name: ecoshop-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app        # Mount local frontend code
+      
+      - /app/node_modules      # Keep container node_modules
+    command: npm run dev        # Run Vite in dev mode with reload
+
+volumes:
+  mysql_data:

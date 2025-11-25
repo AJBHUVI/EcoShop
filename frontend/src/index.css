@@ -1,0 +1,212 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 40 20% 98%;
+    --foreground: 25 30% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 25 30% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 25 30% 15%;
+
+    --primary: 145 65% 45%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 145 75% 65%;
+
+    --secondary: 35 85% 60%;
+    --secondary-foreground: 25 30% 15%;
+
+    --muted: 40 15% 92%;
+    --muted-foreground: 25 20% 45%;
+
+    --accent: 200 75% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 40 20% 88%;
+    --input: 40 20% 88%;
+    --ring: 145 65% 45%;
+
+    --radius: 0.75rem;
+
+    /* Custom gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(145 65% 45%), hsl(145 75% 65%));
+    --gradient-secondary: linear-gradient(135deg, hsl(35 85% 60%), hsl(45 90% 70%));
+    --gradient-hero: linear-gradient(135deg, hsl(145 65% 45% / 0.95), hsl(35 85% 60% / 0.9));
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(40 20% 98%));
+
+    /* Custom shadows */
+    --shadow-elegant: 0 10px 40px -10px hsl(145 65% 45% / 0.2);
+    --shadow-glow: 0 0 30px hsl(145 75% 65% / 0.3);
+    --shadow-card: 0 4px 20px hsl(25 30% 15% / 0.08);
+
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .dark {
+    --background: 25 25% 10%;
+    --foreground: 40 20% 95%;
+
+    --card: 25 20% 12%;
+    --card-foreground: 40 20% 95%;
+
+    --popover: 25 20% 12%;
+    --popover-foreground: 40 20% 95%;
+
+    --primary: 145 70% 50%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 145 75% 65%;
+
+    --secondary: 35 80% 55%;
+    --secondary-foreground: 25 30% 15%;
+
+    --muted: 25 15% 18%;
+    --muted-foreground: 40 15% 60%;
+
+    --accent: 200 70% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 25 20% 20%;
+    --input: 25 20% 20%;
+    --ring: 145 70% 50%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(145 70% 50%), hsl(145 75% 65%));
+    --gradient-secondary: linear-gradient(135deg, hsl(35 80% 55%), hsl(45 85% 65%));
+    --gradient-hero: linear-gradient(135deg, hsl(145 70% 50% / 0.9), hsl(35 80% 55% / 0.85));
+    --gradient-card: linear-gradient(180deg, hsl(25 20% 12%), hsl(25 25% 10%));
+
+    --shadow-elegant: 0 10px 40px -10px hsl(145 70% 50% / 0.3);
+    --shadow-glow: 0 0 30px hsl(145 75% 65% / 0.4);
+    --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.3);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+  }
+}
+
+@layer utilities {
+  /* Hover Scale Animation */
+  .hover-scale {
+    @apply transition-transform duration-300 ease-out hover:scale-105;
+  }
+
+  /* 3D Tilt Effect */
+  .hover-tilt {
+    transition: transform 0.3s ease;
+  }
+
+  .hover-tilt:hover {
+    transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) scale(1.02);
+  }
+
+  /* Gradient Text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent;
+  }
+
+  /* Glass Effect */
+  .glass {
+    @apply backdrop-blur-md bg-background/80 border border-border/50;
+  }
+
+  /* Smooth Scroll */
+  .smooth-scroll {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Fade In */
+.animate-fade-in {
+  opacity: 0;
+  animation: fadeIn 0.9s forwards;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+/* Slide Up */
+.animate-slide-up {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: slideUp 0.8s forwards;
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Parallax hero */
+.hero-bg {
+  transform: scale(1.1);
+  animation: slowZoom 18s ease-in-out infinite alternate;
+}
+
+@keyframes slowZoom {
+  0% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Scroll Reveal */
+/* .reveal-section {
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.show-section {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+} */
+
+/* Stagger Items */
+.animate-item {
+  opacity: 0;
+  animation: fadeUp 0.8s forwards;
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pop Animation */
+.animate-pop {
+  animation: pop 0.4s ease-out;
+}
+
+@keyframes pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
