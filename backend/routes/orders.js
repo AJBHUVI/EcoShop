@@ -3,10 +3,6 @@ import express from "express";
 import db from "../config/db.js"; // assumes mysql2/promise pool
 
 const router = express.Router();
-
-/**
- * Helper: safe JSON parse for values that may be string or already object
- */
 const safeParse = (val, fallback = null) => {
   if (val == null) return fallback;
   if (typeof val === "object") return val;
@@ -20,10 +16,6 @@ const safeParse = (val, fallback = null) => {
   return fallback;
 };
 
-/**
- * POST /orders
- * body: { user_id, items, shipping_address, customer_name, payment_method }
- */
 router.post("/", async (req, res) => {
   try {
     const { user_id, items, shipping_address, customer_name, payment_method } = req.body;
@@ -90,10 +82,6 @@ router.post("/", async (req, res) => {
   }
 });
 
-/**
- * GET /orders
- * Optional query param: ?user_id=123
- */
 router.get("/", async (req, res) => {
   try {
     const userFilter = req.query.user_id ? "WHERE user_id = ?" : "";
@@ -117,10 +105,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-/**
- * GET /orders/:user_id
- * (kept for compatibility)
- */
+
 router.get("/:user_id", async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM orders WHERE user_id = ? ORDER BY order_date DESC", [

@@ -1,4 +1,3 @@
-// src/pages/Orders.tsx
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -195,6 +194,17 @@ export default function Orders(): JSX.Element {
       ? "bg-blue-100 text-blue-700"
       : "bg-green-100 text-green-700";
 
+  // New helper: compute billing total when missing
+  const billingTotal = (b?: BillingDetails | null, fallbackTotal?: number | null) => {
+    if (!b) return fallbackTotal ?? 0;
+    if (b.total != null && !Number.isNaN(Number(b.total))) return Number(b.total);
+    const subtotal = Number(b.subtotal ?? 0);
+    const shipping = Number(b.shipping ?? 0);
+    const tax = Number(b.tax ?? 0);
+    const t = Number((subtotal + shipping + tax).toFixed(2));
+    return t || (fallbackTotal ?? 0);
+  };
+
   return (
     <div className="p-4">
       {loading ? (
@@ -226,7 +236,9 @@ export default function Orders(): JSX.Element {
 
               <div className="flex flex-col md:items-end w-full md:w-auto mt-3 md:mt-0">
                 <div className="font-bold text-lg">
-                  {o.billing_details?.total != null ? formatCurrency(o.billing_details.total) : o.total ? formatCurrency(o.total) : "-"}
+                  { o.billing_details || o.total != null
+                    ? formatCurrency(billingTotal(o.billing_details, o.total))
+                    : "-" }
                 </div>
                 <div className="flex gap-2 justify-start md:justify-end mt-2 md:mt-3 flex-wrap">
                   <Button size="sm" onClick={() => setSelected(o)}>View details</Button>
@@ -251,7 +263,7 @@ export default function Orders(): JSX.Element {
               </div>
               <div className="text-right mt-2 md:mt-0">
                 <div className="font-bold">
-                  {selected.billing_details?.total != null ? formatCurrency(selected.billing_details.total) : selected.total ? formatCurrency(selected.total) : "-"}
+                  {formatCurrency(billingTotal(selected.billing_details, selected.total))}
                 </div>
                 <div className="text-sm text-gray-500">{selected.status}</div>
               </div>
@@ -289,7 +301,7 @@ export default function Orders(): JSX.Element {
                 <div className="text-sm text-gray-600">Subtotal: {formatCurrency(selected.billing_details?.subtotal ?? 0)}</div>
                 <div className="text-sm text-gray-600">Shipping: {formatCurrency(selected.billing_details?.shipping ?? 0)}</div>
                 <div className="text-sm text-gray-600">Tax: {formatCurrency(selected.billing_details?.tax ?? 0)}</div>
-                <div className="font-semibold text-lg mt-1">Total: {formatCurrency(selected.billing_details?.total ?? selected.total ?? 0)}</div>
+                <div className="font-semibold text-lg mt-1">Total: {formatCurrency(billingTotal(selected.billing_details, selected.total))}</div>
               </div>
             </div>
 
