@@ -178,6 +178,7 @@ export default function Sustainability() {
           <h2 className="text-3xl sm:text-4xl font-bold mb-6">A Future Built Responsibly</h2>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
             Our eco-conscious approach ensures users can shop with awareness, purpose, and confidence.
+            test
           </p>
         </div>
       </section>
