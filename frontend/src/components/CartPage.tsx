@@ -30,8 +30,8 @@ export default function CartPage() {
     0
   );
 
-  const shipping = subtotal > 500 ? 0 : selectedProducts.length > 0 ? 40 : 0;
-  const tax = subtotal * 0.05;
+  const shipping = subtotal > 1000 ? 0 : selectedProducts.length > 0 ? 40 : 0;
+  const tax = subtotal * 0.02;
   const total = subtotal + shipping + tax;
 
   // ✅ Checkout Handler (only selected products)
@@ -143,7 +143,7 @@ export default function CartPage() {
                 </div>
 
                 <div className="flex justify-between">
-                  <span>Tax (5%)</span>
+                  <span>Tax (2%)</span>
                   <span>₹{tax.toFixed(2)}</span>
                 </div>
 

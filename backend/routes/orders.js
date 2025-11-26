@@ -33,7 +33,7 @@ router.post("/", async (req, res) => {
     }, 0);
     const subtotal = Number(subtotalRaw.toFixed(2));
     const shipping = 40.0;
-    const tax = Number((subtotal * 0.05).toFixed(2));
+    const tax = Number((subtotal * 0.02).toFixed(2));
     const total = Number((subtotal + shipping + tax).toFixed(2));
 
     const productsJSON = JSON.stringify(items);

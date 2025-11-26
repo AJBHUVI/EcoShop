@@ -1,3 +1,4 @@
+// src/pages/Orders.tsx
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -45,6 +46,48 @@ const safeParseJSON = (s: any) => {
   return [];
 };
 
+// --- Expected policy (must match Cart/Checkout) ---
+const EXPECTED_TAX_RATE = 0.02; // 2%
+const SHIPPING_FLAT = 40;
+const FREE_SHIPPING_MIN = 1000;
+
+const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
+
+function calcExpectedBillingFromSubtotal(subtotal: number) {
+  const s = round2(Number(subtotal) || 0);
+  const shipping = s >= FREE_SHIPPING_MIN ? 0 : SHIPPING_FLAT;
+  const tax = round2(s * EXPECTED_TAX_RATE);
+  const total = round2(s + shipping + tax);
+  return { subtotal: s, shipping, tax, total };
+}
+
+/**
+ * Normalize billing details for display:
+ * - If backend billing_details exists and is close to expected, trust it
+ * - Otherwise return recalculated expected billing
+ */
+function normalizeBilling(b?: BillingDetails | null) {
+  if (!b) return null;
+  const subtotal = Number(b.subtotal ?? 0) || 0;
+  const shipping = Number(b.shipping ?? 0) || 0;
+  const tax = Number(b.tax ?? 0) || 0;
+  const total = Number(b.total ?? 0) || 0;
+
+  const expected = calcExpectedBillingFromSubtotal(subtotal);
+
+  // tolerance (1 rupee) to catch rounding/storage differences
+  if (Math.abs(tax - expected.tax) > 1 || Math.abs(total - expected.total) > 1 || Math.abs(shipping - expected.shipping) > 1) {
+    return expected;
+  }
+
+  return {
+    subtotal: round2(subtotal),
+    shipping: round2(shipping),
+    tax: round2(tax),
+    total: round2(total),
+  };
+}
+
 export default function Orders(): JSX.Element {
   const [userId, setUserId] = useState<string | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -73,6 +116,7 @@ export default function Orders(): JSX.Element {
           .map((o: any) => {
             const order_id = o.order_id ?? o.id ?? o.orderId ?? "-";
             const created_at = o.created_at ?? o.createdAt ?? o.date ?? o.order_date ?? null;
+
             // billing_details may be JSON string or object
             let billing: BillingDetails | null = null;
             if (o.billing_details) {
@@ -105,17 +149,19 @@ export default function Orders(): JSX.Element {
             else if (typeof o.items === "string") itemsRaw = safeParseJSON(o.items);
             else if (typeof o.products === "string") itemsRaw = safeParseJSON(o.products);
 
-            const items: Item[] = (itemsRaw || []).map((it: any) => ({
-              product_id: it.product_id ?? it.productId ?? it.id ?? it.sku,
-              name: it.name ?? it.title ?? it.product_name ?? `Product ${it.product_id ?? "?"}`,
-              price: Number(it.price ?? it.unit_price ?? 0) || 0,
-              quantity: Number(it.quantity ?? it.qty ?? 1) || 1,
-              line_total:
-                Number(
-                  it.line_total ?? it.total ?? (Number(it.price ?? 0) * Number(it.quantity ?? 1))
-                ) || 0,
-              image: it.image ?? it.product_image ?? null,
-            }));
+            const items: Item[] = (itemsRaw || []).map((it: any) => {
+              const price = Number(it.price ?? it.unit_price ?? 0) || 0;
+              const qty = Number(it.quantity ?? it.qty ?? 1) || 1;
+              return {
+                product_id: it.product_id ?? it.productId ?? it.id ?? it.sku,
+                name: it.name ?? it.title ?? it.product_name ?? `Product ${it.product_id ?? "?"}`,
+                price,
+                quantity: qty,
+                line_total:
+                  Number(it.line_total ?? it.total ?? (price * qty)) || round2(price * qty),
+                image: it.image ?? it.product_image ?? null,
+              };
+            });
 
             return {
               order_id,
@@ -156,17 +202,20 @@ export default function Orders(): JSX.Element {
   }, [userId]);
 
   const downloadOrderCSV = (o: Order) => {
-    const billing = o.billing_details ?? { subtotal: "", shipping: "", tax: "", total: "" };
+    const nb = normalizeBilling(o.billing_details) ?? calcExpectedBillingFromSubtotal(
+      o.billing_details?.subtotal ?? o.items.reduce((s, it) => s + (it.price ?? 0) * (it.quantity ?? 1), 0)
+    );
+
     const rows: string[][] = [
       ["Order Date", "Customer", "Status", "Subtotal", "Shipping", "Tax", "Total"],
       [
         String(o.created_at ?? ""),
         String(o.username ?? ""),
         String(o.status ?? ""),
-        String(billing.subtotal ?? ""),
-        String(billing.shipping ?? ""),
-        String(billing.tax ?? ""),
-        String(billing.total ?? ""),
+        String(nb.subtotal ?? ""),
+        String(nb.shipping ?? ""),
+        String(nb.tax ?? ""),
+        String(nb.total ?? ""),
       ],
       [],
       ["Name", "Unit Price", "Qty", "Line Total"],
@@ -194,15 +243,13 @@ export default function Orders(): JSX.Element {
       ? "bg-blue-100 text-blue-700"
       : "bg-green-100 text-green-700";
 
-  // New helper: compute billing total when missing
-  const billingTotal = (b?: BillingDetails | null, fallbackTotal?: number | null) => {
-    if (!b) return fallbackTotal ?? 0;
-    if (b.total != null && !Number.isNaN(Number(b.total))) return Number(b.total);
-    const subtotal = Number(b.subtotal ?? 0);
-    const shipping = Number(b.shipping ?? 0);
-    const tax = Number(b.tax ?? 0);
-    const t = Number((subtotal + shipping + tax).toFixed(2));
-    return t || (fallbackTotal ?? 0);
+  // helper that returns a safe billing object (normalized or recalculated)
+  const billingForDisplay = (o: Order) => {
+    const baseSubtotal =
+      Number(o.billing_details?.subtotal ?? 0) ||
+      o.items.reduce((s, it) => s + (Number(it.price ?? 0) * Number(it.quantity ?? 1)), 0);
+    const nb = normalizeBilling(o.billing_details) ?? calcExpectedBillingFromSubtotal(baseSubtotal);
+    return nb;
   };
 
   return (
@@ -213,40 +260,39 @@ export default function Orders(): JSX.Element {
         <div className="text-sm text-gray-500">No orders found.</div>
       ) : (
         <div className="space-y-4">
-          {orders.map((o) => (
-            <div
-              key={String(o.order_id)}
-              className="flex flex-col md:flex-row items-start md:items-center justify-between border rounded p-4 bg-white"
-            >
-              <div className="flex-1 w-full md:w-auto">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                  <div className="text-base font-semibold">Order #{o.order_id}</div>
-                  <div className="text-xs text-gray-500">
-                    • {o.created_at ? new Date(o.created_at).toLocaleString() : "Date unknown"}
+          {orders.map((o) => {
+            const nb = billingForDisplay(o);
+            return (
+              <div
+                key={String(o.order_id)}
+                className="flex flex-col md:flex-row items-start md:items-center justify-between border rounded p-4 bg-white"
+              >
+                <div className="flex-1 w-full md:w-auto">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                    <div className="text-base font-semibold">Order #{o.order_id}</div>
+                    <div className="text-xs text-gray-500">
+                      • {o.created_at ? new Date(o.created_at).toLocaleString() : "Date unknown"}
+                    </div>
+                    <div className={`px-2 py-1 rounded text-xs font-semibold ${statusClass(o.status)}`}>
+                      {o.status}
+                    </div>
                   </div>
-                  <div className={`px-2 py-1 rounded text-xs font-semibold ${statusClass(o.status)}`}>
-                    {o.status}
+
+                  <div className="text-sm text-gray-700 mt-2">
+                    <strong>User:</strong> {o.username ?? ""} • <strong>Items:</strong> {o.items.length}
                   </div>
                 </div>
 
-                <div className="text-sm text-gray-700 mt-2">
-                  <strong>User:</strong> {o.username ?? ""} • <strong>Items:</strong> {o.items.length}
+                <div className="flex flex-col md:items-end w-full md:w-auto mt-3 md:mt-0">
+                  <div className="font-bold text-lg">{formatCurrency(nb.total)}</div>
+                  <div className="flex gap-2 justify-start md:justify-end mt-2 md:mt-3 flex-wrap">
+                    <Button size="sm" onClick={() => setSelected(o)}>View details</Button>
+                    <Button size="sm" variant="outline" onClick={() => downloadOrderCSV(o)}>CSV</Button>
+                  </div>
                 </div>
               </div>
-
-              <div className="flex flex-col md:items-end w-full md:w-auto mt-3 md:mt-0">
-                <div className="font-bold text-lg">
-                  { o.billing_details || o.total != null
-                    ? formatCurrency(billingTotal(o.billing_details, o.total))
-                    : "-" }
-                </div>
-                <div className="flex gap-2 justify-start md:justify-end mt-2 md:mt-3 flex-wrap">
-                  <Button size="sm" onClick={() => setSelected(o)}>View details</Button>
-                  <Button size="sm" variant="outline" onClick={() => downloadOrderCSV(o)}>CSV</Button>
-                </div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -262,9 +308,7 @@ export default function Orders(): JSX.Element {
                 <div className="text-sm text-gray-700 mt-2">Customer: {selected.username ?? ""}</div>
               </div>
               <div className="text-right mt-2 md:mt-0">
-                <div className="font-bold">
-                  {formatCurrency(billingTotal(selected.billing_details, selected.total))}
-                </div>
+                <div className="font-bold">{formatCurrency(billingForDisplay(selected).total)}</div>
                 <div className="text-sm text-gray-500">{selected.status}</div>
               </div>
             </div>
@@ -298,10 +342,17 @@ export default function Orders(): JSX.Element {
 
               {/* Billing summary */}
               <div className="mt-4 text-right">
-                <div className="text-sm text-gray-600">Subtotal: {formatCurrency(selected.billing_details?.subtotal ?? 0)}</div>
-                <div className="text-sm text-gray-600">Shipping: {formatCurrency(selected.billing_details?.shipping ?? 0)}</div>
-                <div className="text-sm text-gray-600">Tax: {formatCurrency(selected.billing_details?.tax ?? 0)}</div>
-                <div className="font-semibold text-lg mt-1">Total: {formatCurrency(billingTotal(selected.billing_details, selected.total))}</div>
+                {(() => {
+                  const nb = billingForDisplay(selected);
+                  return (
+                    <>
+                      <div className="text-sm text-gray-600">Subtotal: {formatCurrency(nb.subtotal)}</div>
+                      <div className="text-sm text-gray-600">Shipping: {formatCurrency(nb.shipping)}</div>
+                      <div className="text-sm text-gray-600">Tax: {formatCurrency(nb.tax)}</div>
+                      <div className="font-semibold text-lg mt-1">Total: {formatCurrency(nb.total)}</div>
+                    </>
+                  );
+                })()}
               </div>
             </div>
 
