@@ -151,7 +151,7 @@ useEffect(() => {
           {filteredProducts.map((product, index) => (
             <div
               key={product.product_id}
-              className="animate-fade-in"
+              className="animate-fade-in "
               style={{ animationDelay: `${index * 0.05}s` }}
             >
               <ProductCard {...product} />
