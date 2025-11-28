@@ -82,7 +82,7 @@ export default function Checkout() {
 
       if (cart.length > 0) {
         const ids = cart.map((i: any) => i.product_id);
-        removeMultiple(ids);
+        removeMultiple(ids);  // after order placed remove items from cart
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "Order failed");
@@ -111,9 +111,14 @@ export default function Checkout() {
       <div className="max-w-5xl mx-auto grid lg:grid-cols-3 gap-8">
         {/* LEFT */}
         <Card className="p-6 lg:col-span-2 space-y-4">
-          <input placeholder="Full name" className="border p-2 rounded w-full" value={name} onChange={(e) => setName(e.target.value)} />
 
-          <textarea placeholder="Shipping address" className="border p-2 rounded w-full h-24" value={address} onChange={(e) => setAddress(e.target.value)} />
+          <input placeholder="Full name" className="border p-2 rounded w-full" 
+          value={name} 
+          onChange={(e) => setName(e.target.value)} />
+
+          <textarea placeholder="Shipping address" className="border p-2 rounded w-full h-24" 
+          value={address} 
+          onChange={(e) => setAddress(e.target.value)} />
 
           <div className="space-y-2">
             <label className="font-medium">Payment Method</label>
@@ -129,9 +134,17 @@ export default function Checkout() {
 
           {method === "card" && (
             <div className="grid sm:grid-cols-3 gap-3">
-              <input placeholder="2422 7680 3674" className="border p-2 rounded" value={card.num} onChange={(e) => setCard({ ...card, num: e.target.value })} />
-              <input placeholder="MM/YY" className="border p-2 rounded" value={card.exp} onChange={(e) => setCard({ ...card, exp: e.target.value })} />
-              <input placeholder="CVC" className="border p-2 rounded" value={card.cvc} onChange={(e) => setCard({ ...card, cvc: e.target.value })} />
+              <input placeholder="2422 7680 3674" className="border p-2 rounded" 
+              value={card.num} 
+              onChange={(e) => setCard({ ...card, num: e.target.value })} />
+
+              <input placeholder="MM/YY" className="border p-2 rounded" 
+              value={card.exp} 
+              onChange={(e) => setCard({ ...card, exp: e.target.value })} />
+
+              <input placeholder="CVC" className="border p-2 rounded" 
+              value={card.cvc} 
+              onChange={(e) => setCard({ ...card, cvc: e.target.value })} />
             </div>
           )}
 
@@ -176,7 +189,7 @@ export default function Checkout() {
           </div>
 
           <Button className="w-full mt-4" onClick={placeOrder} disabled={loading}>
-            {loading ? "Placing..." : "Place Order"}
+            place order
           </Button>
         </Card>
       </div>

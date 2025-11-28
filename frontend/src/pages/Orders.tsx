@@ -53,7 +53,7 @@ const FREE_SHIPPING_MIN = 1000;
 
 const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
 
-function calcExpectedBillingFromSubtotal(subtotal: number) {
+function calc(subtotal: number) {
   const s = round2(Number(subtotal) || 0);
   const shipping = s >= FREE_SHIPPING_MIN ? 0 : SHIPPING_FLAT;
   const tax = round2(s * EXPECTED_TAX_RATE);
@@ -61,11 +61,6 @@ function calcExpectedBillingFromSubtotal(subtotal: number) {
   return { subtotal: s, shipping, tax, total };
 }
 
-/**
- * Normalize billing details for display:
- * - If backend billing_details exists and is close to expected, trust it
- * - Otherwise return recalculated expected billing
- */
 function normalizeBilling(b?: BillingDetails | null) {
   if (!b) return null;
   const subtotal = Number(b.subtotal ?? 0) || 0;
@@ -73,7 +68,7 @@ function normalizeBilling(b?: BillingDetails | null) {
   const tax = Number(b.tax ?? 0) || 0;
   const total = Number(b.total ?? 0) || 0;
 
-  const expected = calcExpectedBillingFromSubtotal(subtotal);
+  const expected = calc(subtotal);
 
   // tolerance (1 rupee) to catch rounding/storage differences
   if (Math.abs(tax - expected.tax) > 1 || Math.abs(total - expected.total) > 1 || Math.abs(shipping - expected.shipping) > 1) {
@@ -134,20 +129,21 @@ export default function Orders(): JSX.Element {
               const subtotal = Number(o.subtotal ?? o.sub_total ?? o.amount ?? 0) || 0;
               const shipping = Number(o.shipping ?? 0) || 0;
               const tax = Number(o.tax ?? 0) || 0;
-              const total = Number(o.total ?? o.total_amount ?? o.amount ?? subtotal + shipping + tax) || 0;
+              const total = Number(o.total ?? o.total_amount ?? o.amount ?? subtotal + shipping + tax) || 0;  //Data normalization(fallback)
               billing = { subtotal, shipping, tax, total };
             }
 
-            const total = Number(billing?.total ?? o.total ?? o.amount ?? null) || null;
+            const total = Number(billing?.total ?? o.total ?? o.amount ?? null) || null; //Data reading not calculating
             const status = o.status ?? o.order_status ?? "submitted";
             const uname = o.username ?? o.customer_name ?? o.name ?? o.customer_name ?? null;
 
-            let itemsRaw: any[] = [];
-            if (Array.isArray(o.items)) itemsRaw = o.items;
-            else if (Array.isArray(o.order_items)) itemsRaw = o.order_items;
-            else if (Array.isArray(o.products)) itemsRaw = o.products;
+            let itemsRaw: any[] = []; // start with empty array
+             if (Array.isArray(o.items)) itemsRaw = o.items;  //items:[...]
+            else if (Array.isArray(o.order_items)) itemsRaw = o.order_items;   //order_items:[...]
+            else if (Array.isArray(o.products)) itemsRaw = o.products;   //products:[...]
             else if (typeof o.items === "string") itemsRaw = safeParseJSON(o.items);
-            else if (typeof o.products === "string") itemsRaw = safeParseJSON(o.products);
+            else if (typeof o.products === "string") itemsRaw = safeParseJSON(o.products);  //"[ { ... }, { ... } ]"
+
 
             const items: Item[] = (itemsRaw || []).map((it: any) => {
               const price = Number(it.price ?? it.unit_price ?? 0) || 0;
@@ -174,6 +170,9 @@ export default function Orders(): JSX.Element {
               billing_details: billing,
             };
           })
+
+          ///User only sees their own orders
+
           .filter((o) => {
             const raw = o.raw ?? {};
             const owner = raw.user_id ?? raw.userId ?? raw.customer_id ?? raw.customerId;
@@ -202,12 +201,13 @@ export default function Orders(): JSX.Element {
   }, [userId]);
 
   const downloadOrderCSV = (o: Order) => {
-    const nb = normalizeBilling(o.billing_details) ?? calcExpectedBillingFromSubtotal(
+    const nb = normalizeBilling(o.billing_details) ?? calc(
       o.billing_details?.subtotal ?? o.items.reduce((s, it) => s + (it.price ?? 0) * (it.quantity ?? 1), 0)
     );
 
+   // Two dimensional array
     const rows: string[][] = [
-      ["Order Date", "Customer", "Status", "Subtotal", "Shipping", "Tax", "Total"],
+      ["Order Date", "Customer", "Status", "Subtotal", "Shipping", "Tax", "Total"], // CSV headers
       [
         String(o.created_at ?? ""),
         String(o.username ?? ""),
@@ -218,7 +218,7 @@ export default function Orders(): JSX.Element {
         String(nb.total ?? ""),
       ],
       [],
-      ["Name", "Unit Price", "Qty", "Line Total"],
+      ["Name", "Unit Price", "Qty", "Line Total"], // Item table headers
       ...o.items.map((it) => [
         String(it.name ?? ""),
         String(it.price ?? ""),
@@ -226,6 +226,8 @@ export default function Orders(): JSX.Element {
         String(it.line_total ?? ""),
       ]),
     ];
+
+    //Convert rows -> CSV string
     const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -233,22 +235,23 @@ export default function Orders(): JSX.Element {
     a.href = url;
     a.download = `order-${o.order_id}.csv`;
     a.click();
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(url); // cleanup the temporary URL
   };
 
+  //Tailwind classes
   const statusClass = (s?: string) =>
     s?.toLowerCase().includes("cancel")
       ? "bg-red-100 text-red-700"
       : s?.toLowerCase().includes("ship")
       ? "bg-blue-100 text-blue-700"
-      : "bg-green-100 text-green-700";
+      : "bg-red-100 text-green-700";
 
   // helper that returns a safe billing object (normalized or recalculated)
   const billingForDisplay = (o: Order) => {
     const baseSubtotal =
       Number(o.billing_details?.subtotal ?? 0) ||
       o.items.reduce((s, it) => s + (Number(it.price ?? 0) * Number(it.quantity ?? 1)), 0);
-    const nb = normalizeBilling(o.billing_details) ?? calcExpectedBillingFromSubtotal(baseSubtotal);
+    const nb = normalizeBilling(o.billing_details) ?? calc(baseSubtotal);
     return nb;
   };
 
@@ -295,8 +298,10 @@ export default function Orders(): JSX.Element {
           })}
         </div>
       )}
-
+      
+    {/* This is the code will be work after click the view details button..! */}
       {/* Modal */}
+      
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => setSelected(null)} />

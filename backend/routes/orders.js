@@ -1,8 +1,9 @@
 // routes/orders.js
 import express from "express";
-import db from "../config/db.js"; // assumes mysql2/promise pool
+import db from "../config/db.js"; // mysql2/promise pool
 
 const router = express.Router();
+
 const safeParse = (val, fallback = null) => {
   if (val == null) return fallback;
   if (typeof val === "object") return val;
@@ -16,6 +17,15 @@ const safeParse = (val, fallback = null) => {
   return fallback;
 };
 
+const SHIPPING_THRESHOLD = 1000;
+const SHIPPING_FEE = 40;
+const TAX_RATE = 0.02;
+
+function round2(v) {
+  return Math.round(Number(v || 0) * 100) / 100;
+}
+
+// Create order
 router.post("/", async (req, res) => {
   try {
     const { user_id, items, shipping_address, customer_name, payment_method } = req.body;
@@ -25,24 +35,25 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "items must be a non-empty array" });
     }
 
-    // Calculate billing
+    // Recalculate subtotal on server (do NOT trust client)
     const subtotalRaw = items.reduce((sum, it) => {
-      const price = Number(it.price ?? 0);
-      const qty = Number(it.quantity ?? it.qty ?? 1);
+      const price = parseFloat(it.price ?? it.unit_price ?? 0) || 0;
+      const qty = parseFloat(it.quantity ?? it.qty ?? it.count ?? 1) || 0;
       return sum + price * qty;
     }, 0);
-    const subtotal = Number(subtotalRaw.toFixed(2));
-    const shipping = 40.0;
-    const tax = Number((subtotal * 0.02).toFixed(2));
-    const total = Number((subtotal + shipping + tax).toFixed(2));
+    const subtotal = round2(subtotalRaw);
+
+    // shipping rule: free when subtotal >= threshold
+    const shippingAmount = subtotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
+    const tax = round2(subtotal * TAX_RATE);
+    const total = round2(subtotal + shippingAmount + tax);
+
+    // Build billing object but omit shipping key when it's zero
+    const billingDetailsObj = { subtotal, tax, total };
+    if (shippingAmount > 0) billingDetailsObj.shipping = shippingAmount;
 
     const productsJSON = JSON.stringify(items);
-    const billingDetailsJSON = JSON.stringify({
-      subtotal,
-      shipping,
-      tax,
-      total,
-    });
+    const billingDetailsJSON = JSON.stringify(billingDetailsObj);
 
     const sql = `
       INSERT INTO orders (
@@ -66,13 +77,15 @@ router.post("/", async (req, res) => {
       payment_method ?? "cod",
     ]);
 
-    // Fetch the inserted order by order_id (insertId)
+    // Fetch inserted row to return to client
     const [[orderRow]] = await db.query("SELECT * FROM orders WHERE order_id = ? LIMIT 1", [result.insertId]);
 
-    // safe-parse JSON columns if driver returned strings
     if (orderRow) {
       orderRow.products = safeParse(orderRow.products, []);
-      orderRow.billing_details = safeParse(orderRow.billing_details, null);
+      // ensure billing_details is an object and add shipping:0 if missing
+      const billing = safeParse(orderRow.billing_details, {}) || {};
+      if (billing.shipping == null) billing.shipping = 0; // ensure response always has shipping
+      orderRow.billing_details = billing;
     }
 
     res.status(201).json({ message: "Order placed successfully", order: orderRow });
@@ -82,6 +95,7 @@ router.post("/", async (req, res) => {
   }
 });
 
+// Get all orders, with optional user_id filter
 router.get("/", async (req, res) => {
   try {
     const userFilter = req.query.user_id ? "WHERE user_id = ?" : "";
@@ -91,10 +105,12 @@ router.get("/", async (req, res) => {
     const [rows] = await db.query(sql, params);
 
     const orders = rows.map((r) => {
+      const billing = safeParse(r.billing_details, {}) || {};
+      if (billing.shipping == null) billing.shipping = 0;
       return {
         ...r,
         products: safeParse(r.products, []),
-        billing_details: safeParse(r.billing_details, null),
+        billing_details: billing,
       };
     });
 
@@ -105,18 +121,23 @@ router.get("/", async (req, res) => {
   }
 });
 
-
+// Get orders by user_id
 router.get("/:user_id", async (req, res) => {
   try {
-    const [rows] = await db.query("SELECT * FROM orders WHERE user_id = ? ORDER BY order_date DESC", [
-      req.params.user_id,
-    ]);
+    const [rows] = await db.query(
+      "SELECT * FROM orders WHERE user_id = ? ORDER BY order_date DESC",
+      [req.params.user_id]
+    );
 
-    const orders = rows.map((r) => ({
-      ...r,
-      products: safeParse(r.products, []),
-      billing_details: safeParse(r.billing_details, null),
-    }));
+    const orders = rows.map((r) => {
+      const billing = safeParse(r.billing_details, {}) || {};
+      if (billing.shipping == null) billing.shipping = 0;
+      return {
+        ...r,
+        products: safeParse(r.products, []),
+        billing_details: billing,
+      };
+    });
 
     res.json(orders);
   } catch (err) {

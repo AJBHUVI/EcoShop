@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
+// src/components/CartContext.tsx
+import React, { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 
 interface CartItem {
@@ -15,7 +16,7 @@ interface CartContextType {
   removeFromCart: (product_id: number) => void;
   clearCart: () => void;
   updateQuantity: (product_id: number, delta: number) => void;
-  removeMultiple: (productIds: number[]) => void;   
+  removeMultiple: (ids: number[]) => void;
   isCartOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
@@ -23,36 +24,46 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider = ({ children }: { children: ReactNode }) => {
+export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  const getUserId = () =>
-    sessionStorage.getItem("user_id") ?? sessionStorage.getItem("userId") ?? null;
+  const getUserId = () => sessionStorage.getItem("user_id");
 
+  // load cart from backend
   const loadCart = async () => {
     const userId = getUserId();
     if (!userId) {
       setCart([]);
       return;
     }
+
     try {
       const res = await axios.get(`/cart/${userId}`);
-      const normalized = res.data.map((r: any) => ({
-        product_id: Number(r.product_id),
-        name: String(r.name),
-        price: Number(r.price),
-        quantity: Number(r.quantity),
-        image: r.image ?? "",
-      }));
-      setCart(normalized);
-    } catch (err) {
-      console.error("❌ Error loading cart:", err);
+      setCart(
+        res.data.map((r: any) => ({
+          product_id: Number(r.product_id),
+          name: r.name,
+          price: Number(r.price),
+          quantity: Number(r.quantity),
+          image: r.image ?? "",
+        }))
+      );
+    } catch {
+      setCart([]);
     }
   };
 
+  // 🚀 On app start + whenever user logs in/out
   useEffect(() => {
     loadCart();
+
+    const userChangeHandler = () => loadCart();
+    window.addEventListener("userChanged", userChangeHandler);
+
+    return () => {
+      window.removeEventListener("userChanged", userChangeHandler);
+    };
   }, []);
 
   const openCart = () => setIsCartOpen(true);
@@ -60,14 +71,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const addToCart = async (item: CartItem) => {
     const userId = getUserId();
-    if (!userId) {
-      alert("Please login to add items to cart");
-      return;
-    }
+    if (!userId) return alert("Please login");
 
+    // optimistic UI
     setCart((prev) => {
-      const found = prev.find((p) => p.product_id === item.product_id);
-      if (found) {
+      const existing = prev.find((p) => p.product_id === item.product_id);
+      if (existing) {
         return prev.map((p) =>
           p.product_id === item.product_id
             ? { ...p, quantity: p.quantity + item.quantity }
@@ -85,8 +94,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         product_id: item.product_id,
         quantity: item.quantity,
       });
-    } catch (err) {
-      console.error("❌ Error adding to cart:", err);
+    } catch {
+      loadCart();
     }
   };
 
@@ -98,63 +107,61 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       await axios.delete(`/cart/${userId}/${product_id}`);
-    } catch (err) {
-      console.error("❌ Error removing from cart:", err);
+    } catch {
+      loadCart();
     }
   };
 
-  // ✅ NEW: Remove multiple selected items
-  const removeMultiple = async (productIds: number[]) => {
+  const removeMultiple = async (ids: number[]) => {
     const userId = getUserId();
     if (!userId) return;
 
-    // ✅ Remove selected items UI
-    setCart((prev) => prev.filter((item) => !productIds.includes(item.product_id)));
+    setCart((prev) => prev.filter((i) => !ids.includes(i.product_id)));
 
     try {
-      // ✅ Remove from backend
-      for (const pid of productIds) {
-        await axios.delete(`/cart/${userId}/${pid}`);
-      }
-    } catch (err) {
-      console.error("❌ Error removing multiple items:", err);
+      await Promise.all(ids.map((id) => axios.delete(`/cart/${userId}/${id}`)));
+    } catch {
+      loadCart();
     }
   };
 
   const clearCart = async () => {
     const userId = getUserId();
+    setCart([]); // clear UI immediately
+
     if (!userId) return;
 
-    setCart([]);
     try {
       await axios.delete(`/cart/clear/${userId}`);
-    } catch (err) {
-      console.error("❌ Error clearing cart:", err);
+    } catch {
+      loadCart();
     }
   };
 
   const updateQuantity = async (product_id: number, delta: number) => {
-    setCart((prev) =>
-      prev.map((i) =>
-        i.product_id === product_id
-          ? { ...i, quantity: Math.max(1, i.quantity + delta) }
-          : i
-      )
-    );
-
     const userId = getUserId();
     if (!userId) return;
 
-    const item = cart.find((i) => i.product_id === product_id);
+    // optimistic change
+    let newQty = 1;
+    setCart((prev) =>
+      prev.map((item) => {
+        if (item.product_id === product_id) {
+          newQty = Math.max(1, item.quantity + delta);
+          return { ...item, quantity: newQty };
+        }
+        return item;
+      })
+    );
 
     try {
       await axios.post("/cart/update", {
         user_id: userId,
         product_id,
-        quantity: item?.quantity,
+        quantity: newQty,
       });
-    } catch (err) {
-      console.error("❌ Error updating quantity:", err);
+    } catch {
+      loadCart();
     }
   };
 
@@ -166,7 +173,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         removeFromCart,
         clearCart,
         updateQuantity,
-        removeMultiple,   // ✅ Added
+        removeMultiple,
         isCartOpen,
         openCart,
         closeCart,
